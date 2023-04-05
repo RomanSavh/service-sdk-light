@@ -21,8 +21,8 @@ jobs:
       - name: Build full
         run: cargo build --features full
 
-      - name: Build with-telemetry          
-        run: cargo build --features with-logs-and-telemetry      
+      - name: Build service-bus
+        run: cargo build --features service-bus
 
-      - name: Build with-telemetry and with_tls         
-        run: cargo build --features with-logs-and-telemetry,with-tls    
+      - name: Build no-sql
+        run: cargo build --features no-sql
