@@ -59,22 +59,22 @@ impl ServiceContext {
         >,
     ) -> Self {
         let app_states = Arc::new(AppStates::create_un_initialized());
+        let app_name = settings.get_service_name();
+        let app_version = settings.get_service_version();
 
         #[cfg(feature = "no-sql")]
         let my_no_sql_connection = Arc::new(MyNoSqlTcpConnection::new(
-            SERVICE_APP_NAME.to_string(),
+            app_name.clone(),
             settings.clone(),
         ));
 
         #[cfg(feature = "service-bus")]
         let sb_client = Arc::new(MyServiceBusClient::new(
-            SERVICE_APP_NAME,
-            SERVICE_APP_VERSION,
+            &app_name,
+            &app_version.clone(),
             settings.clone(),
             my_logger::LOGGER.clone(),
         ));
-        let app_name = settings.get_service_name();
-        let app_version = settings.get_service_version();
 
         let http_server =
             ServiceHttpServer::new(app_states.clone(), &app_name, &app_version, None, None);
@@ -147,7 +147,7 @@ impl ServiceContext {
         queue_type: TopicQueueType,
     ) -> &Self {
         self.sb_client
-            .subscribe(SERVICE_APP_NAME.to_string(), queue_type, callback)
+            .subscribe(self.app_name.clone(), queue_type, callback)
             .await;
 
         self
