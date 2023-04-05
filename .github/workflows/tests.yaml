@@ -1,0 +1,28 @@
+name: Test it
+
+on:
+  push:
+    branches: [ "*" ]
+  pull_request:
+    branches: [ "*" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Build default
+        run: cargo build
+
+      - name: Build full
+        run: cargo build --features full
+
+      - name: Build with-telemetry          
+        run: cargo build --features with-logs-and-telemetry      
+
+      - name: Build with-telemetry and with_tls         
+        run: cargo build --features with-logs-and-telemetry,with-tls    

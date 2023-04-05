@@ -1,0 +1,48 @@
+[package]
+name = "service-sdk"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[features]
+default = []
+full = ["service-bus", "no-sql"]
+service-bus = [
+    "dep:my-service-bus-tcp-client",
+    "dep:my-service-bus-tcp-shared",
+    "dep:my-service-bus-abstractions",
+]
+no-sql = [
+    "dep:my-no-sql-tcp-reader",
+    "dep:my-no-sql-data-writer",
+    "dep:my-no-sql-server-abstractions",
+    "dep:serde",
+]
+
+[dependencies]
+lazy_static = "*"
+my-http-server = { tag = "0.5.0", git = "https://github.com/MyJetTools/my-http-server.git", features = [
+    "my-telemetry",
+] }
+
+my-telemetry = { tag = "0.3.0", git = "https://github.com/MyJetTools/my-telemetry.git" }
+my-telemetry-writer = { tag = "0.3.0", git = "https://github.com/MyJetTools/my-telemetry-writer.git" }
+
+is-alive-middleware = { tag = "0.5.0", git = "https://github.com/MyJetTools/is-alive-middleware.git" }
+my-http-server-controllers = { tag = "0.5.0", git = "https://github.com/MyJetTools/my-http-server-controllers.git" }
+my-http-server-swagger = { tag = "0.5.0", git = "https://github.com/MyJetTools/my-http-server-swagger.git" }
+rust-extensions = { tag = "0.1.3", git = "https://github.com/MyJetTools/rust-extensions.git" }
+my-logger = { tag = "0.2.0", git = "https://github.com/MyJetTools/my-logger.git" }
+my-seq-logger = { tag = "0.2.1", git = "https://github.com/MyJetTools/my-seq-logger.git" }
+
+my-service-bus-tcp-client = { tag = "0.2.1", git = "https://github.com/MyJetTools/my-service-bus-tcp-client.git", optional = true }
+my-service-bus-tcp-shared = { tag = "0.3.2", git = "https://github.com/MyJetTools/my-service-bus-tcp-shared.git", optional = true }
+my-service-bus-abstractions = { tag = "0.1.1", git = "https://github.com/MyJetTools/my-service-bus-abstractions.git", optional = true }
+
+my-no-sql-tcp-reader = { tag = "0.2.0", git = "https://github.com/MyJetTools/my-no-sql-tcp-reader.git", optional = true }
+my-no-sql-data-writer = { tag = "0.2.0", git = "https://github.com/MyJetTools/my-no-sql-data-writer.git", optional = true }
+my-no-sql-server-abstractions = { tag = "0.1.1", git = "https://github.com/MyJetTools/my-no-sql-server-abstractions.git", optional = true }
+
+serde = {version = "*", optional = true}
+tokio = { version = "*", features = ["full"] }
