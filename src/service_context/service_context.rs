@@ -21,7 +21,7 @@ use serde::de::DeserializeOwned;
 use crate::{ServiceHttpServer, SERVICE_APP_NAME, SERVICE_APP_VERSION};
 
 pub struct ServiceContext {
-    pub http_server: Option<ServiceHttpServer>,
+    pub http_server: ServiceHttpServer,
     pub telemetry_writer: MyTelemetryWriter,
     pub app_states: Arc<AppStates>,
     #[cfg(feature = "no-sql")]
@@ -66,8 +66,10 @@ impl ServiceContext {
             my_logger::LOGGER.clone(),
         ));
 
+        let http_server = ServiceHttpServer::new(app_states.clone(), None, None);
+
         Self {
-            http_server: None,
+            http_server: http_server,
             telemetry_writer: MyTelemetryWriter::new(
                 SERVICE_APP_NAME.to_string(),
                 settings.clone(),
@@ -85,17 +87,14 @@ impl ServiceContext {
         authorization: Option<ControllersAuthorization>,
         auth_error_factory: Option<Arc<dyn AuthErrorFactory + Send + Sync + 'static>>,
     ) -> &mut Self {
-        self.http_server = Some(ServiceHttpServer::new(
-            self.app_states.clone(),
-            authorization,
-            auth_error_factory,
-        ));
+        self.http_server =
+            ServiceHttpServer::new(self.app_states.clone(), authorization, auth_error_factory);
 
         self
     }
 
     pub fn register_http_routes(&mut self, config: fn(&mut ServiceHttpServer)) -> &mut Self {
-        config(self.http_server.as_mut().unwrap());
+        config(&mut self.http_server);
         self
     }
 
@@ -109,7 +108,7 @@ impl ServiceContext {
             .await;
         #[cfg(feature = "service-bus")]
         self.sb_client.start().await;
-        self.http_server.as_mut().unwrap().start_http_server();
+        self.http_server.start_http_server();
         self.app_states.wait_until_shutdown().await;
     }
 
