@@ -13,18 +13,20 @@ use my_http_server_controllers::{
 };
 use rust_extensions::AppStates;
 
-use crate::{SERVICE_APP_NAME, SERVICE_APP_VERSION};
-
 pub struct ServiceHttpServer {
     server: MyHttpServer,
     controllers: Option<ControllersMiddleware>,
     middlewares: Vec<Arc<dyn HttpServerMiddleware + Send + Sync + 'static>>,
     app_states: Arc<AppStates>,
+    app_name: String,
+    app_version: String,
 }
 
 impl ServiceHttpServer {
     pub fn new(
         app_states: Arc<AppStates>,
+        app_name: &str,
+        app_version: &str,
         authorization: Option<ControllersAuthorization>,
         auth_error_factory: Option<Arc<dyn AuthErrorFactory + Send + Sync + 'static>>,
     ) -> Self {
@@ -36,6 +38,8 @@ impl ServiceHttpServer {
                 auth_error_factory,
             )),
             app_states,
+            app_name: app_name.to_string(),
+            app_version: app_version.to_string(),
         }
     }
 
@@ -104,13 +108,13 @@ impl ServiceHttpServer {
         let controllers = Arc::new(self.controllers.take().unwrap());
         let swagger_middleware = SwaggerMiddleware::new(
             controllers.clone(),
-            SERVICE_APP_NAME.to_string(),
-            SERVICE_APP_VERSION.to_string(),
+            self.app_name.clone(),
+            self.app_version.clone(),
         );
 
         let is_alive = IsAliveMiddleware::new(
-            SERVICE_APP_NAME.to_string(),
-            SERVICE_APP_VERSION.to_string(),
+            self.app_name.clone(),
+            self.app_version.clone(),
         );
 
         self.server.add_middleware(Arc::new(is_alive));

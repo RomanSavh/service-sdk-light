@@ -1,3 +1,3 @@
-mod consts;
+mod service_info_accessor;
 
-pub use consts::*;
+pub use service_info_accessor::*;

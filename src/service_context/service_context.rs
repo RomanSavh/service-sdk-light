@@ -18,12 +18,14 @@ use rust_extensions::AppStates;
 #[cfg(feature = "no-sql")]
 use serde::de::DeserializeOwned;
 
-use crate::{ServiceHttpServer, SERVICE_APP_NAME, SERVICE_APP_VERSION};
+use crate::{ServiceHttpServer, ServiceInfo};
 
 pub struct ServiceContext {
     pub http_server: ServiceHttpServer,
     pub telemetry_writer: MyTelemetryWriter,
     pub app_states: Arc<AppStates>,
+    pub app_name: String,
+    pub app_version: String,
     #[cfg(feature = "no-sql")]
     pub my_no_sql_connection: Arc<MyNoSqlTcpConnection>,
     #[cfg(feature = "service-bus")]
@@ -38,16 +40,22 @@ impl ServiceContext {
                 + MyServiceBusSettings
                 + Send
                 + Sync
+                + ServiceInfo
                 + 'static,
         >,
         #[cfg(all(not(feature = "no-sql"), all(feature = "service-bus")))] settings: Arc<
-            impl MyTelemetrySettings + MyServiceBusSettings + Send + Sync + 'static,
+            impl MyTelemetrySettings + MyServiceBusSettings + ServiceInfo + Send + Sync + 'static,
         >,
         #[cfg(all(not(feature = "service-bus"), all(feature = "no-sql")))] settings: Arc<
-            impl MyTelemetrySettings + MyNoSqlTcpConnectionSettings + Send + Sync + 'static,
+            impl MyTelemetrySettings
+                + ServiceInfo
+                + MyNoSqlTcpConnectionSettings
+                + Send
+                + Sync
+                + 'static,
         >,
         #[cfg(all(not(feature = "service-bus"), not(feature = "no-sql")))] settings: Arc<
-            impl MyTelemetrySettings + Send + Sync + 'static,
+            impl MyTelemetrySettings + ServiceInfo + Send + Sync + 'static,
         >,
     ) -> Self {
         let app_states = Arc::new(AppStates::create_un_initialized());
@@ -65,20 +73,22 @@ impl ServiceContext {
             settings.clone(),
             my_logger::LOGGER.clone(),
         ));
+        let app_name = settings.get_service_name();
+        let app_version = settings.get_service_version();
 
-        let http_server = ServiceHttpServer::new(app_states.clone(), None, None);
+        let http_server =
+            ServiceHttpServer::new(app_states.clone(), &app_name, &app_version, None, None);
 
         Self {
             http_server: http_server,
-            telemetry_writer: MyTelemetryWriter::new(
-                SERVICE_APP_NAME.to_string(),
-                settings.clone(),
-            ),
+            telemetry_writer: MyTelemetryWriter::new(app_name.clone(), settings.clone()),
             app_states,
             #[cfg(feature = "no-sql")]
             my_no_sql_connection,
             #[cfg(feature = "service-bus")]
             sb_client,
+            app_name,
+            app_version,
         }
     }
 
@@ -87,8 +97,13 @@ impl ServiceContext {
         authorization: Option<ControllersAuthorization>,
         auth_error_factory: Option<Arc<dyn AuthErrorFactory + Send + Sync + 'static>>,
     ) -> &mut Self {
-        self.http_server =
-            ServiceHttpServer::new(self.app_states.clone(), authorization, auth_error_factory);
+        self.http_server = ServiceHttpServer::new(
+            self.app_states.clone(),
+            &self.app_name,
+            &self.app_version,
+            authorization,
+            auth_error_factory,
+        );
 
         self
     }
