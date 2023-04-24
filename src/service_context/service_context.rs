@@ -17,6 +17,7 @@ use my_telemetry_writer::{MyTelemetrySettings, MyTelemetryWriter};
 use rust_extensions::AppStates;
 #[cfg(feature = "no-sql")]
 use serde::de::DeserializeOwned;
+#[cfg(feature = "grpc-server")]
 use tonic::transport::server::Router;
 use std::sync::Arc;
 #[cfg(feature = "grpc-server")]
