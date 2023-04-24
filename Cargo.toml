@@ -7,7 +7,7 @@ edition = "2021"
 
 [features]
 default = []
-full = ["service-bus", "no-sql"]
+full = ["service-bus", "no-sql", "grpc-server"]
 service-bus = [
     "dep:my-service-bus-tcp-client",
     "dep:my-service-bus-tcp-shared",
@@ -19,6 +19,7 @@ no-sql = [
     "dep:my-no-sql-server-abstractions",
     "dep:serde",
 ]
+grpc-server = ["dep:tonic", "dep:hyper"]
 
 [dependencies]
 lazy_static = "*"
@@ -44,5 +45,11 @@ my-no-sql-tcp-reader = { tag = "0.2.0", git = "https://github.com/MyJetTools/my-
 my-no-sql-data-writer = { tag = "0.2.0", git = "https://github.com/MyJetTools/my-no-sql-data-writer.git", optional = true }
 my-no-sql-server-abstractions = { tag = "0.1.1", git = "https://github.com/MyJetTools/my-no-sql-server-abstractions.git", optional = true }
 
-serde = {version = "*", optional = true}
+serde = { version = "*", optional = true }
 tokio = { version = "*", features = ["full"] }
+tonic = { version = "*", features = [
+    "tls",
+    "tls-roots",
+    "prost",
+], optional = true }
+hyper = { version = "*", optional = true }

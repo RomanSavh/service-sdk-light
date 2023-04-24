@@ -1,5 +1,5 @@
-use std::sync::Arc;
-
+#[cfg(feature = "grpc-server")]
+use hyper::Body;
 use my_http_server_controllers::controllers::{AuthErrorFactory, ControllersAuthorization};
 #[cfg(feature = "no-sql")]
 use my_no_sql_server_abstractions::MyNoSqlEntity;
@@ -17,6 +17,17 @@ use my_telemetry_writer::{MyTelemetrySettings, MyTelemetryWriter};
 use rust_extensions::AppStates;
 #[cfg(feature = "no-sql")]
 use serde::de::DeserializeOwned;
+use tonic::transport::server::Router;
+use std::sync::Arc;
+#[cfg(feature = "grpc-server")]
+use std::{convert::Infallible, net::SocketAddr};
+
+#[cfg(feature = "grpc-server")]
+use tonic::{
+    body::BoxBody,
+    codegen::{http::Request, Service},
+    transport::{NamedService, Server},
+};
 
 use crate::{ServiceHttpServer, ServiceInfo};
 
@@ -30,6 +41,8 @@ pub struct ServiceContext {
     pub my_no_sql_connection: Arc<MyNoSqlTcpConnection>,
     #[cfg(feature = "service-bus")]
     pub sb_client: Arc<MyServiceBusClient>,
+    #[cfg(feature = "grpc-server")]
+    pub grpc_router: Option<Router>,
 }
 
 impl ServiceContext {
@@ -89,6 +102,8 @@ impl ServiceContext {
             sb_client,
             app_name,
             app_version,
+            #[cfg(feature = "grpc-server")]
+            grpc_router: None,
         }
     }
 
@@ -124,6 +139,17 @@ impl ServiceContext {
         #[cfg(feature = "service-bus")]
         self.sb_client.start().await;
         self.http_server.start_http_server();
+
+        #[cfg(feature = "grpc-server")]
+        {
+            let grpc_addr = SocketAddr::from(([0, 0, 0, 0], 8888));
+            self.grpc_router
+                .take()
+                .expect("Grpc service is not defined. Cannot start grpc server")
+                .serve(grpc_addr)
+                .await
+                .unwrap();
+        }
         self.app_states.wait_until_shutdown().await;
     }
 
@@ -159,5 +185,18 @@ impl ServiceContext {
         do_retries: bool,
     ) -> MyServiceBusPublisher<TModel> {
         return self.sb_client.get_publisher(do_retries).await;
+    }
+
+    #[cfg(feature = "grpc-server")]
+    pub fn add_grpc_service<S>(&mut self, svc: S)
+    where
+        S: Service<Request<Body>, Response = hyper::Response<BoxBody>, Error = Infallible>
+            + NamedService
+            + Clone
+            + Send
+            + 'static,
+        S::Future: Send + 'static,
+    {
+        self.grpc_router = Some(Server::builder().add_service(svc));
     }
 }
