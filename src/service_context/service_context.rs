@@ -124,7 +124,7 @@ impl ServiceContext {
         self
     }
 
-    pub fn register_http_routes(&mut self, config: fn(&mut ServiceHttpServer)) -> &mut Self {
+    pub fn register_http_routes(&mut self, config: impl Fn(&mut ServiceHttpServer)) -> &mut Self {
         config(&mut self.http_server);
         self
     }
