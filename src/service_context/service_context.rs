@@ -132,6 +132,7 @@ impl ServiceContext {
 
     pub fn update_default_ip(&mut self, ip: IpAddr) -> &mut Self {
         self.default_ip = ip;
+        self.http_server.update_ip(ip);
         self
     }
 

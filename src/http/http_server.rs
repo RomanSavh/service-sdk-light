@@ -47,6 +47,10 @@ impl ServiceHttpServer {
         }
     }
 
+    pub fn update_ip(&mut self, ip: IpAddr){
+        self.server = MyHttpServer::new(SocketAddr::new(ip, 8000));
+    }
+
     pub fn add_middleware(
         &mut self,
         middleware: Arc<dyn HttpServerMiddleware + Send + Sync + 'static>,
