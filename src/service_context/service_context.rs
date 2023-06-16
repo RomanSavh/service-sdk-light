@@ -18,7 +18,7 @@ use rust_extensions::AppStates;
 #[cfg(feature = "no-sql")]
 use serde::de::DeserializeOwned;
 #[cfg(feature = "grpc-server")]
-use std::{convert::Infallible, net::SocketAddr};
+use std::{convert::Infallible};
 use std::{
     net::{IpAddr, SocketAddr},
     sync::Arc,
@@ -154,7 +154,7 @@ impl ServiceContext {
 
         #[cfg(feature = "grpc-server")]
         {
-            let grpc_addr = SocketAddr::new(self.default_ip, 8888);
+            let grpc_addr = SocketAddr::new(self.defau, 8888);
             self.grpc_router
                 .take()
                 .expect("Grpc service is not defined. Cannot start grpc server")
