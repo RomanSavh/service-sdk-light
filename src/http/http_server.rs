@@ -1,4 +1,7 @@
-use std::{net::SocketAddr, sync::Arc};
+use std::{
+    net::{IpAddr, SocketAddr},
+    sync::Arc,
+};
 
 use is_alive_middleware::IsAliveMiddleware;
 use my_http_server::{HttpServerMiddleware, MyHttpServer};
@@ -29,9 +32,10 @@ impl ServiceHttpServer {
         app_version: &str,
         authorization: Option<ControllersAuthorization>,
         auth_error_factory: Option<Arc<dyn AuthErrorFactory + Send + Sync + 'static>>,
+        ip: IpAddr,
     ) -> Self {
         Self {
-            server: MyHttpServer::new(SocketAddr::from(([0, 0, 0, 0], 8000))),
+            server: MyHttpServer::new(SocketAddr::new(ip, 8000)),
             middlewares: vec![],
             controllers: Some(ControllersMiddleware::new(
                 authorization,
@@ -112,10 +116,7 @@ impl ServiceHttpServer {
             self.app_version.clone(),
         );
 
-        let is_alive = IsAliveMiddleware::new(
-            self.app_name.clone(),
-            self.app_version.clone(),
-        );
+        let is_alive = IsAliveMiddleware::new(self.app_name.clone(), self.app_version.clone());
 
         self.server.add_middleware(Arc::new(is_alive));
         self.server.add_middleware(Arc::new(swagger_middleware));

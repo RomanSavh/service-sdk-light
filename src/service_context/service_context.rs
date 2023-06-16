@@ -18,10 +18,13 @@ use rust_extensions::AppStates;
 #[cfg(feature = "no-sql")]
 use serde::de::DeserializeOwned;
 #[cfg(feature = "grpc-server")]
-use tonic::transport::server::Router;
-use std::sync::Arc;
-#[cfg(feature = "grpc-server")]
 use std::{convert::Infallible, net::SocketAddr};
+use std::{
+    net::{IpAddr, SocketAddr},
+    sync::Arc,
+};
+#[cfg(feature = "grpc-server")]
+use tonic::transport::server::Router;
 
 #[cfg(feature = "grpc-server")]
 use tonic::{
@@ -38,6 +41,7 @@ pub struct ServiceContext {
     pub app_states: Arc<AppStates>,
     pub app_name: String,
     pub app_version: String,
+    pub default_ip: IpAddr,
     #[cfg(feature = "no-sql")]
     pub my_no_sql_connection: Arc<MyNoSqlTcpConnection>,
     #[cfg(feature = "service-bus")]
@@ -75,6 +79,7 @@ impl ServiceContext {
         let app_states = Arc::new(AppStates::create_un_initialized());
         let app_name = settings.get_service_name();
         let app_version = settings.get_service_version();
+        let default_ip: IpAddr = IpAddr::from([0, 0, 0, 0]);
 
         #[cfg(feature = "no-sql")]
         let my_no_sql_connection = Arc::new(MyNoSqlTcpConnection::new(
@@ -91,7 +96,7 @@ impl ServiceContext {
         ));
 
         let http_server =
-            ServiceHttpServer::new(app_states.clone(), &app_name, &app_version, None, None);
+            ServiceHttpServer::new(app_states.clone(), &app_name, &app_version, None, None, default_ip.clone());
 
         Self {
             http_server: http_server,
@@ -103,6 +108,7 @@ impl ServiceContext {
             sb_client,
             app_name,
             app_version,
+            default_ip,
             #[cfg(feature = "grpc-server")]
             grpc_router: None,
         }
@@ -119,8 +125,13 @@ impl ServiceContext {
             &self.app_version,
             authorization,
             auth_error_factory,
+            self.default_ip
         );
+        self
+    }
 
+    pub fn update_default_ip(&mut self, ip: IpAddr) -> &mut Self {
+        self.default_ip = ip;
         self
     }
 
@@ -143,7 +154,7 @@ impl ServiceContext {
 
         #[cfg(feature = "grpc-server")]
         {
-            let grpc_addr = SocketAddr::from(([0, 0, 0, 0], 8888));
+            let grpc_addr = SocketAddr::from(SocketAddr::new(ip, 8888));
             self.grpc_router
                 .take()
                 .expect("Grpc service is not defined. Cannot start grpc server")
