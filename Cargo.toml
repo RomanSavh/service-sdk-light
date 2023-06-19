@@ -20,6 +20,7 @@ no-sql = [
     "dep:serde",
 ]
 grpc-server = ["dep:tonic", "dep:hyper"]
+psql = ["dep:my-postgres"]
 
 [dependencies]
 lazy_static = "*"
@@ -53,3 +54,9 @@ tonic = { version = "*", features = [
     "prost",
 ], optional = true }
 hyper = { version = "*", optional = true }
+
+
+my-postgres = { tag = "0.4.3", git = "https://github.com/MyJetTools/my-postgres.git", features = [
+    "with-logs-and-telemetry",
+    "with-tls",
+], optional = true }

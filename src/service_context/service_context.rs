@@ -1,3 +1,4 @@
+use core::time;
 #[cfg(feature = "grpc-server")]
 use hyper::Body;
 use my_http_server_controllers::controllers::{AuthErrorFactory, ControllersAuthorization};
@@ -14,14 +15,15 @@ use my_service_bus_abstractions::{
 #[cfg(feature = "service-bus")]
 use my_service_bus_tcp_client::{MyServiceBusClient, MyServiceBusSettings};
 use my_telemetry_writer::{MyTelemetrySettings, MyTelemetryWriter};
-use rust_extensions::AppStates;
+use rust_extensions::{AppStates, MyTimer, MyTimerTick};
 #[cfg(feature = "no-sql")]
 use serde::de::DeserializeOwned;
 #[cfg(feature = "grpc-server")]
-use std::{convert::Infallible};
+use std::convert::Infallible;
 use std::{
     net::{IpAddr, SocketAddr},
     sync::Arc,
+    time::Duration,
 };
 #[cfg(feature = "grpc-server")]
 use tonic::transport::server::Router;
@@ -42,6 +44,7 @@ pub struct ServiceContext {
     pub app_name: String,
     pub app_version: String,
     pub default_ip: IpAddr,
+    pub background_timers: Vec<MyTimer>,
     #[cfg(feature = "no-sql")]
     pub my_no_sql_connection: Arc<MyNoSqlTcpConnection>,
     #[cfg(feature = "service-bus")]
@@ -95,8 +98,14 @@ impl ServiceContext {
             my_logger::LOGGER.clone(),
         ));
 
-        let http_server =
-            ServiceHttpServer::new(app_states.clone(), &app_name, &app_version, None, None, default_ip.clone());
+        let http_server = ServiceHttpServer::new(
+            app_states.clone(),
+            &app_name,
+            &app_version,
+            None,
+            None,
+            default_ip.clone(),
+        );
 
         Self {
             http_server: http_server,
@@ -111,6 +120,7 @@ impl ServiceContext {
             default_ip,
             #[cfg(feature = "grpc-server")]
             grpc_router: None,
+            background_timers: vec![],
         }
     }
 
@@ -125,7 +135,7 @@ impl ServiceContext {
             &self.app_version,
             authorization,
             auth_error_factory,
-            self.default_ip
+            self.default_ip,
         );
         self
     }
@@ -134,6 +144,18 @@ impl ServiceContext {
         self.default_ip = ip;
         self.http_server.update_ip(ip);
         self
+    }
+
+    pub fn register_background_job(
+        &mut self,
+        duration: Duration,
+        name: &str,
+        job: Arc<dyn MyTimerTick + Send + Sync + 'static>,
+    ) {
+        let mut timer = MyTimer::new(duration);
+        timer.register_timer(name, job);
+
+        self.background_timers.push(timer);
     }
 
     pub fn register_http_routes(&mut self, config: impl Fn(&mut ServiceHttpServer)) -> &mut Self {
@@ -163,6 +185,11 @@ impl ServiceContext {
                 .await
                 .unwrap();
         }
+
+        for timer in self.background_timers.iter() {
+            timer.start(self.app_states.clone(), my_logger::LOGGER.clone());
+        }
+        
         self.app_states.wait_until_shutdown().await;
     }
 
