@@ -6,6 +6,7 @@ use my_http_server_controllers::controllers::{AuthErrorFactory, ControllersAutho
 use my_no_sql_server_abstractions::MyNoSqlEntity;
 #[cfg(feature = "no-sql")]
 use my_no_sql_tcp_reader::{MyNoSqlDataReader, MyNoSqlTcpConnection, MyNoSqlTcpConnectionSettings};
+use my_seq_logger::{SeqLogger, SeqSettings};
 #[cfg(feature = "service-bus")]
 use my_service_bus_abstractions::{
     publisher::{MySbMessageSerializer, MyServiceBusPublisher},
@@ -15,7 +16,7 @@ use my_service_bus_abstractions::{
 #[cfg(feature = "service-bus")]
 use my_service_bus_tcp_client::{MyServiceBusClient, MyServiceBusSettings};
 use my_telemetry_writer::{MyTelemetrySettings, MyTelemetryWriter};
-use rust_extensions::{AppStates, MyTimer, MyTimerTick};
+use rust_extensions::{AppStates, MyTimer, MyTimerTick, Logger};
 #[cfg(feature = "no-sql")]
 use serde::de::DeserializeOwned;
 #[cfg(feature = "grpc-server")]
@@ -62,10 +63,17 @@ impl ServiceContext {
                 + Send
                 + Sync
                 + ServiceInfo
+                + SeqSettings
                 + 'static,
         >,
         #[cfg(all(not(feature = "no-sql"), all(feature = "service-bus")))] settings: Arc<
-            impl MyTelemetrySettings + MyServiceBusSettings + ServiceInfo + Send + Sync + 'static,
+            impl MyTelemetrySettings
+                + MyServiceBusSettings
+                + ServiceInfo
+                + Send
+                + Sync
+                + SeqSettings
+                + 'static,
         >,
         #[cfg(all(not(feature = "service-bus"), all(feature = "no-sql")))] settings: Arc<
             impl MyTelemetrySettings
@@ -73,10 +81,11 @@ impl ServiceContext {
                 + MyNoSqlTcpConnectionSettings
                 + Send
                 + Sync
+                + SeqSettings
                 + 'static,
         >,
         #[cfg(all(not(feature = "service-bus"), not(feature = "no-sql")))] settings: Arc<
-            impl MyTelemetrySettings + ServiceInfo + Send + Sync + 'static,
+            impl MyTelemetrySettings + ServiceInfo + Send + Sync + SeqSettings + 'static,
         >,
     ) -> Self {
         let app_states = Arc::new(AppStates::create_un_initialized());
@@ -106,6 +115,9 @@ impl ServiceContext {
             None,
             default_ip.clone(),
         );
+
+        my_logger::LOGGER.populate_app_and_version(app_name.clone(), app_version.clone());
+        SeqLogger::enable_from_connection_string(settings.clone());
 
         Self {
             http_server: http_server,
@@ -167,6 +179,9 @@ impl ServiceContext {
         self.app_states.set_initialized();
         self.telemetry_writer
             .start(self.app_states.clone(), my_logger::LOGGER.clone());
+        for timer in self.background_timers.iter() {
+            timer.start(self.app_states.clone(), my_logger::LOGGER.clone());
+        }
         #[cfg(feature = "no-sql")]
         self.my_no_sql_connection
             .start(my_logger::LOGGER.clone())
@@ -186,10 +201,6 @@ impl ServiceContext {
                 .unwrap();
         }
 
-        for timer in self.background_timers.iter() {
-            timer.start(self.app_states.clone(), my_logger::LOGGER.clone());
-        }
-        
         self.app_states.wait_until_shutdown().await;
     }
 
