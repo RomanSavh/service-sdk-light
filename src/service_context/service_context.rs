@@ -59,6 +59,7 @@ impl ServiceContext {
         #[cfg(all(feature = "service-bus", feature = "no-sql"))] settings: Arc<
             impl MyTelemetrySettings
                 + MyNoSqlTcpConnectionSettings
+                + MyNoSqlWriterSettings
                 + MyServiceBusSettings
                 + Send
                 + Sync
@@ -79,6 +80,7 @@ impl ServiceContext {
             impl MyTelemetrySettings
                 + ServiceInfo
                 + MyNoSqlTcpConnectionSettings
+                + MyNoSqlWriterSettings
                 + Send
                 + Sync
                 + SeqSettings
@@ -116,7 +118,6 @@ impl ServiceContext {
             default_ip.clone(),
         );
 
-        my_logger::LOGGER.populate_app_and_version(app_name.clone(), app_version.clone());
         SeqLogger::enable_from_connection_string(settings.clone());
 
         Self {
