@@ -1,7 +1,7 @@
-use core::time;
 #[cfg(feature = "grpc-server")]
 use hyper::Body;
 use my_http_server_controllers::controllers::{AuthErrorFactory, ControllersAuthorization};
+use my_no_sql_data_writer::MyNoSqlWriterSettings;
 #[cfg(feature = "no-sql")]
 use my_no_sql_server_abstractions::MyNoSqlEntity;
 #[cfg(feature = "no-sql")]
@@ -16,7 +16,7 @@ use my_service_bus_abstractions::{
 #[cfg(feature = "service-bus")]
 use my_service_bus_tcp_client::{MyServiceBusClient, MyServiceBusSettings};
 use my_telemetry_writer::{MyTelemetrySettings, MyTelemetryWriter};
-use rust_extensions::{AppStates, MyTimer, MyTimerTick, Logger};
+use rust_extensions::{AppStates, Logger, MyTimer, MyTimerTick};
 #[cfg(feature = "no-sql")]
 use serde::de::DeserializeOwned;
 #[cfg(feature = "grpc-server")]
@@ -103,8 +103,8 @@ impl ServiceContext {
 
         #[cfg(feature = "service-bus")]
         let sb_client = Arc::new(MyServiceBusClient::new(
-            &app_name,
-            &app_version.clone(),
+            app_name.to_string(),
+            app_version.clone(),
             settings.clone(),
             my_logger::LOGGER.clone(),
         ));
