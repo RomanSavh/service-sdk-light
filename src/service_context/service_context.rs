@@ -117,6 +117,7 @@ impl ServiceContext {
             None,
             default_ip.clone(),
         );
+        println!("Initialized service context");
 
         SeqLogger::enable_from_connection_string(settings.clone());
 
@@ -202,6 +203,7 @@ impl ServiceContext {
                 .unwrap();
         }
 
+        println!("Application is stated");
         self.app_states.wait_until_shutdown().await;
     }
 
