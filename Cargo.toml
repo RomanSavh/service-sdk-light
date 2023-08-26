@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-default = ["full"]
+default = []
 full = ["service-bus", "no-sql", "grpc-server"]
 service-bus = [
     "dep:my-service-bus-tcp-client",
