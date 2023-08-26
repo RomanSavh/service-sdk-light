@@ -1,6 +1,7 @@
 #[cfg(feature = "grpc-server")]
 use hyper::Body;
 use my_http_server_controllers::controllers::{AuthErrorFactory, ControllersAuthorization};
+#[cfg(feature = "no-sql")]
 use my_no_sql_data_writer::MyNoSqlWriterSettings;
 #[cfg(feature = "no-sql")]
 use my_no_sql_server_abstractions::MyNoSqlEntity;
