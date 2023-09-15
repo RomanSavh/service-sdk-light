@@ -61,6 +61,7 @@ my-logger = { tag = "1.0.2", git = "https://github.com/MyJetTools/my-logger.git"
 my-http = { tag = "0.1.0", git = "https://github.com/MyJetTools/my-http", features = [
     "controllers",
     "is-alive",
+    "macros",
 ] }
 
 my-postgres = { tag = "0.4.3", git = "https://github.com/MyJetTools/my-postgres.git", features = [
