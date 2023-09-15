@@ -3,9 +3,7 @@ use std::{
     sync::Arc,
 };
 
-use is_alive_middleware::IsAliveMiddleware;
-use my_http_server::{HttpServerMiddleware, MyHttpServer};
-use my_http_server_controllers::{
+use my_http::controllers::{
     controllers::{
         actions::{
             DeleteAction, GetAction, GetDescription, HandleHttpRequest, PostAction, PutAction,
@@ -14,9 +12,11 @@ use my_http_server_controllers::{
     },
     swagger::SwaggerMiddleware,
 };
+use my_http::core::{HttpServerMiddleware, MyHttpServer};
+use my_http::is_alive::IsAliveMiddleware;
 use rust_extensions::AppStates;
 
-pub struct ServiceHttpServer {
+pub struct ServiceHttpServerBuilder {
     server: MyHttpServer,
     controllers: Option<ControllersMiddleware>,
     middlewares: Vec<Arc<dyn HttpServerMiddleware + Send + Sync + 'static>>,
@@ -25,7 +25,7 @@ pub struct ServiceHttpServer {
     app_version: String,
 }
 
-impl ServiceHttpServer {
+impl ServiceHttpServerBuilder {
     pub fn new(
         app_states: Arc<AppStates>,
         app_name: &str,
@@ -47,7 +47,7 @@ impl ServiceHttpServer {
         }
     }
 
-    pub fn update_ip(&mut self, ip: IpAddr){
+    pub fn update_ip(&mut self, ip: IpAddr) {
         self.server = MyHttpServer::new(SocketAddr::new(ip, 8000));
     }
 

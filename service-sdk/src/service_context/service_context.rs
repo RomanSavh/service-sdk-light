@@ -1,25 +1,33 @@
+use my_http::controllers::{AuthErrorFactory, ControllersAuthorization};
+use my_logger::my_seq_logger::{SeqLogger, SeqSettings};
+use my_telemetry::my_telemetry_writer::{MyTelemetrySettings, MyTelemetryWriter};
+use rust_extensions::{AppStates, MyTimer, MyTimerTick};
+
 #[cfg(feature = "grpc-server")]
 use hyper::Body;
-use my_http_server_controllers::controllers::{AuthErrorFactory, ControllersAuthorization};
-#[cfg(feature = "no-sql")]
-use my_no_sql_data_writer::MyNoSqlWriterSettings;
-#[cfg(feature = "no-sql")]
-use my_no_sql_server_abstractions::MyNoSqlEntity;
-#[cfg(feature = "no-sql")]
-use my_no_sql_tcp_reader::{MyNoSqlDataReader, MyNoSqlTcpConnection, MyNoSqlTcpConnectionSettings};
-use my_seq_logger::{SeqLogger, SeqSettings};
-#[cfg(feature = "service-bus")]
-use my_service_bus_abstractions::{
-    publisher::{MySbMessageSerializer, MyServiceBusPublisher},
-    subscriber::{MySbMessageDeserializer, SubscriberCallback, TopicQueueType},
-    GetMySbModelTopicId,
-};
-#[cfg(feature = "service-bus")]
-use my_service_bus_tcp_client::{MyServiceBusClient, MyServiceBusSettings};
-use my_telemetry_writer::{MyTelemetrySettings, MyTelemetryWriter};
-use rust_extensions::{AppStates, Logger, MyTimer, MyTimerTick};
-#[cfg(feature = "no-sql")]
+
+#[cfg(feature = "no-sql-writer")]
+use my_no_sql::data_writer::MyNoSqlWriterSettings;
+
+#[cfg(any(feature = "no-sql-reader", feature = "no-sql-writer"))]
+use my_no_sql::server_abstractions::MyNoSqlEntity;
+
+#[cfg(feature = "no-sql-reader")]
+use my_no_sql::reader::{MyNoSqlDataReader, MyNoSqlTcpConnection, MyNoSqlTcpConnectionSettings};
+
+#[cfg(feature = "no-sql-reader")]
 use serde::de::DeserializeOwned;
+
+#[cfg(feature = "service-bus")]
+use my_service_bus::{
+    abstractions::{
+        publisher::{MySbMessageSerializer, MyServiceBusPublisher},
+        subscriber::{MySbMessageDeserializer, SubscriberCallback, TopicQueueType},
+        GetMySbModelTopicId,
+    },
+    client::{MyServiceBusClient, MyServiceBusSettings},
+};
+
 #[cfg(feature = "grpc-server")]
 use std::convert::Infallible;
 use std::{
@@ -37,17 +45,17 @@ use tonic::{
     transport::{NamedService, Server},
 };
 
-use crate::{ServiceHttpServer, ServiceInfo};
+use crate::{ServiceInfo, ServiceHttpServerBuilder};
 
 pub struct ServiceContext {
-    pub http_server: ServiceHttpServer,
+    pub http_server: ServiceHttpServerBuilder,
     pub telemetry_writer: MyTelemetryWriter,
     pub app_states: Arc<AppStates>,
     pub app_name: String,
     pub app_version: String,
     pub default_ip: IpAddr,
     pub background_timers: Vec<MyTimer>,
-    #[cfg(feature = "no-sql")]
+    #[cfg(feature = "no-sql-reader")]
     pub my_no_sql_connection: Arc<MyNoSqlTcpConnection>,
     #[cfg(feature = "service-bus")]
     pub sb_client: Arc<MyServiceBusClient>,
@@ -56,47 +64,13 @@ pub struct ServiceContext {
 }
 
 impl ServiceContext {
-    pub fn new(
-        #[cfg(all(feature = "service-bus", feature = "no-sql"))] settings: Arc<
-            impl MyTelemetrySettings
-                + MyNoSqlTcpConnectionSettings
-                + MyNoSqlWriterSettings
-                + MyServiceBusSettings
-                + Send
-                + Sync
-                + ServiceInfo
-                + SeqSettings
-                + 'static,
-        >,
-        #[cfg(all(not(feature = "no-sql"), all(feature = "service-bus")))] settings: Arc<
-            impl MyTelemetrySettings
-                + MyServiceBusSettings
-                + ServiceInfo
-                + Send
-                + Sync
-                + SeqSettings
-                + 'static,
-        >,
-        #[cfg(all(not(feature = "service-bus"), all(feature = "no-sql")))] settings: Arc<
-            impl MyTelemetrySettings
-                + ServiceInfo
-                + MyNoSqlTcpConnectionSettings
-                + MyNoSqlWriterSettings
-                + Send
-                + Sync
-                + SeqSettings
-                + 'static,
-        >,
-        #[cfg(all(not(feature = "service-bus"), not(feature = "no-sql")))] settings: Arc<
-            impl MyTelemetrySettings + ServiceInfo + Send + Sync + SeqSettings + 'static,
-        >,
-    ) -> Self {
+    pub fn new(settings: service_sdk_macros::generate_settings_signature!()) -> Self {
         let app_states = Arc::new(AppStates::create_un_initialized());
         let app_name = settings.get_service_name();
         let app_version = settings.get_service_version();
         let default_ip: IpAddr = IpAddr::from([0, 0, 0, 0]);
 
-        #[cfg(feature = "no-sql")]
+        #[cfg(feature = "no-sql-reader")]
         let my_no_sql_connection = Arc::new(MyNoSqlTcpConnection::new(
             app_name.clone(),
             settings.clone(),
@@ -110,7 +84,7 @@ impl ServiceContext {
             my_logger::LOGGER.clone(),
         ));
 
-        let http_server = ServiceHttpServer::new(
+        let http_server = ServiceHttpServerBuilder::new(
             app_states.clone(),
             &app_name,
             &app_version,
@@ -126,7 +100,7 @@ impl ServiceContext {
             http_server: http_server,
             telemetry_writer: MyTelemetryWriter::new(app_name.clone(), settings.clone()),
             app_states,
-            #[cfg(feature = "no-sql")]
+            #[cfg(feature = "no-sql-reader")]
             my_no_sql_connection,
             #[cfg(feature = "service-bus")]
             sb_client,
@@ -144,7 +118,7 @@ impl ServiceContext {
         authorization: Option<ControllersAuthorization>,
         auth_error_factory: Option<Arc<dyn AuthErrorFactory + Send + Sync + 'static>>,
     ) -> &mut Self {
-        self.http_server = ServiceHttpServer::new(
+        self.http_server = ServiceHttpServerBuilder::new(
             self.app_states.clone(),
             &self.app_name,
             &self.app_version,
@@ -173,7 +147,7 @@ impl ServiceContext {
         self.background_timers.push(timer);
     }
 
-    pub fn register_http_routes(&mut self, config: impl Fn(&mut ServiceHttpServer)) -> &mut Self {
+    pub fn configurate_http_server(&mut self, config: impl Fn(&mut ServiceHttpServerBuilder)) -> &mut Self {
         config(&mut self.http_server);
         self
     }
@@ -185,7 +159,7 @@ impl ServiceContext {
         for timer in self.background_timers.iter() {
             timer.start(self.app_states.clone(), my_logger::LOGGER.clone());
         }
-        #[cfg(feature = "no-sql")]
+        #[cfg(feature = "no-sql-reader")]
         self.my_no_sql_connection
             .start(my_logger::LOGGER.clone())
             .await;
@@ -209,12 +183,12 @@ impl ServiceContext {
     }
 
     //ns
-    #[cfg(feature = "no-sql")]
+    #[cfg(feature = "no-sql-reader")]
     pub async fn get_ns_reader<
         TMyNoSqlEntity: MyNoSqlEntity + Sync + Send + DeserializeOwned + 'static,
     >(
         &self,
-    ) -> Arc<MyNoSqlDataReader<TMyNoSqlEntity>> {
+    ) -> Arc<dyn MyNoSqlDataReader<TMyNoSqlEntity>> {
         return self.my_no_sql_connection.get_reader().await;
     }
 
