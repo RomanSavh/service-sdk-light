@@ -26,7 +26,7 @@ jobs:
           toolchain: stable
       - name: Build full
         run: cargo build --features full
-  build-ns:
+  build-no-sql-reader:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -34,7 +34,16 @@ jobs:
         with:
           toolchain: stable
       - name: Build no-sql
-        run: cargo build --features no-sql
+        run: cargo build --features no-sql-reader
+  build-no-sql-writer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Build no-sql
+        run: cargo build --features no-sql-writer
   build-sb:
     runs-on: ubuntu-latest
     steps:
@@ -52,4 +61,13 @@ jobs:
         with:
           toolchain: stable
       - name: Build grpc-server
-        run: cargo build --features no-sql
+        run: cargo build --features grpc-server
+  build-psql:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Build grpc-server
+        run: cargo build --features psql
