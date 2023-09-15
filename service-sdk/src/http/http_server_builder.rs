@@ -146,8 +146,8 @@ impl HttpServerBuilder {
 
         my_http_server.add_middleware(Arc::new(is_alive));
 
-        for middleware in self.middlewares.iter() {
-            my_http_server.add_middleware(middleware.clone());
+        for middleware in self.middlewares.drain(..) {
+            my_http_server.add_middleware(middleware);
         }
 
         my_http_server
