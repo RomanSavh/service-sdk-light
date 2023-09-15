@@ -3,8 +3,8 @@ use std::{
     sync::Arc,
 };
 
-use my_http::controllers::{
-    controllers::{
+use is_alive_middleware::IsAliveMiddleware;
+use my_http_server::controllers::{{
         actions::{
             DeleteAction, GetAction, GetDescription, HandleHttpRequest, PostAction, PutAction,
         },
@@ -12,8 +12,7 @@ use my_http::controllers::{
     },
     swagger::SwaggerMiddleware,
 };
-use my_http::core::{HttpServerMiddleware, MyHttpServer};
-use my_http::is_alive::IsAliveMiddleware;
+use my_http_server::{HttpServerMiddleware, MyHttpServer};
 use rust_extensions::AppStates;
 
 pub struct ServiceHttpServerBuilder {
@@ -24,7 +23,6 @@ pub struct ServiceHttpServerBuilder {
     app_name: String,
     app_version: String,
 }
-
 impl ServiceHttpServerBuilder {
     pub fn new(
         app_states: Arc<AppStates>,

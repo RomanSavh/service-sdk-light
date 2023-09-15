@@ -1,4 +1,4 @@
-use my_http::controllers::{AuthErrorFactory, ControllersAuthorization};
+use my_http_server::controllers::{AuthErrorFactory, ControllersAuthorization};
 use my_logger::my_seq_logger::{SeqLogger, SeqSettings};
 use my_telemetry::my_telemetry_writer::{MyTelemetrySettings, MyTelemetryWriter};
 use rust_extensions::{AppStates, MyTimer, MyTimerTick};

@@ -6,7 +6,7 @@ pub use common::*;
 pub use http::*;
 pub use service_context::*;
 
-pub extern crate my_http;
+pub extern crate my_http_server;
 
 pub extern crate my_telemetry;
 
