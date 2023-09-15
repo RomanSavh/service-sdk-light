@@ -4,49 +4,62 @@ use std::{
 };
 
 use is_alive_middleware::IsAliveMiddleware;
-use my_http_server::controllers::{{
+use my_http_server::controllers::{
+    swagger::SwaggerMiddleware,
+    {
         actions::{
             DeleteAction, GetAction, GetDescription, HandleHttpRequest, PostAction, PutAction,
         },
         AuthErrorFactory, ControllersAuthorization, ControllersMiddleware,
     },
-    swagger::SwaggerMiddleware,
 };
 use my_http_server::{HttpServerMiddleware, MyHttpServer};
-use rust_extensions::AppStates;
+use rust_extensions::StrOrString;
 
-pub struct ServiceHttpServerBuilder {
-    server: MyHttpServer,
-    controllers: Option<ControllersMiddleware>,
+pub struct HttpServerBuilder {
+    listen_address: SocketAddr,
+
     middlewares: Vec<Arc<dyn HttpServerMiddleware + Send + Sync + 'static>>,
-    app_states: Arc<AppStates>,
+
     app_name: String,
     app_version: String,
+    controllers: Option<ControllersMiddleware>,
 }
-impl ServiceHttpServerBuilder {
-    pub fn new(
-        app_states: Arc<AppStates>,
-        app_name: &str,
-        app_version: &str,
-        authorization: Option<ControllersAuthorization>,
-        auth_error_factory: Option<Arc<dyn AuthErrorFactory + Send + Sync + 'static>>,
-        ip: IpAddr,
-    ) -> Self {
+impl HttpServerBuilder {
+    pub fn new(app_name: StrOrString<'static>, app_version: StrOrString<'static>) -> Self {
         Self {
-            server: MyHttpServer::new(SocketAddr::new(ip, 8000)),
+            listen_address: SocketAddr::new(IpAddr::from([0, 0, 0, 0]), 8000),
             middlewares: vec![],
-            controllers: Some(ControllersMiddleware::new(
-                authorization,
-                auth_error_factory,
-            )),
-            app_states,
+            controllers: None,
             app_name: app_name.to_string(),
             app_version: app_version.to_string(),
         }
     }
 
-    pub fn update_ip(&mut self, ip: IpAddr) {
-        self.server = MyHttpServer::new(SocketAddr::new(ip, 8000));
+    pub fn set_authorization(&mut self, authorization: ControllersAuthorization) {
+        if self.controllers.is_none() {
+            self.controllers = Some(ControllersMiddleware::new(Some(authorization), None));
+        } else {
+            self.controllers
+                .as_mut()
+                .unwrap()
+                .update_authorization_map(authorization);
+        }
+    }
+
+    pub fn set_auth_error_factory(&mut self, value: impl AuthErrorFactory + Send + Sync + 'static) {
+        if self.controllers.is_none() {
+            self.controllers = Some(ControllersMiddleware::new(None, Some(Arc::new(value))));
+        } else {
+            self.controllers
+                .as_mut()
+                .unwrap()
+                .update_auth_error_factory(Arc::new(value));
+        }
+    }
+
+    pub fn update_listen_endpoint(&mut self, ip: IpAddr, port: u16) {
+        self.listen_address = SocketAddr::new(ip, port);
     }
 
     pub fn add_middleware(
@@ -58,12 +71,13 @@ impl ServiceHttpServerBuilder {
         return self;
     }
 
-    pub fn register_get<
-        TGetAction: GetAction + HandleHttpRequest + GetDescription + Send + Sync + 'static,
-    >(
+    pub fn register_get(
         &mut self,
-        action: TGetAction,
+        action: impl GetAction + HandleHttpRequest + GetDescription + Send + Sync + 'static,
     ) -> &mut Self {
+        if self.controllers.is_none() {
+            self.controllers = Some(ControllersMiddleware::new(None, None));
+        }
         self.controllers
             .as_mut()
             .unwrap()
@@ -71,12 +85,13 @@ impl ServiceHttpServerBuilder {
         return self;
     }
 
-    pub fn register_post<
-        TGetAction: PostAction + HandleHttpRequest + GetDescription + Send + Sync + 'static,
-    >(
+    pub fn register_post(
         &mut self,
-        action: TGetAction,
+        action: impl PostAction + HandleHttpRequest + GetDescription + Send + Sync + 'static,
     ) -> &mut Self {
+        if self.controllers.is_none() {
+            self.controllers = Some(ControllersMiddleware::new(None, None));
+        }
         self.controllers
             .as_mut()
             .unwrap()
@@ -84,12 +99,13 @@ impl ServiceHttpServerBuilder {
         return self;
     }
 
-    pub fn register_put<
-        TGetAction: PutAction + HandleHttpRequest + GetDescription + Send + Sync + 'static,
-    >(
+    pub fn register_put(
         &mut self,
-        action: TGetAction,
+        action: impl PutAction + HandleHttpRequest + GetDescription + Send + Sync + 'static,
     ) -> &mut Self {
+        if self.controllers.is_none() {
+            self.controllers = Some(ControllersMiddleware::new(None, None));
+        }
         self.controllers
             .as_mut()
             .unwrap()
@@ -97,12 +113,13 @@ impl ServiceHttpServerBuilder {
         return self;
     }
 
-    pub fn register_delete<
-        TGetAction: DeleteAction + HandleHttpRequest + GetDescription + Send + Sync + 'static,
-    >(
+    pub fn register_delete(
         &mut self,
-        action: TGetAction,
+        action: impl DeleteAction + HandleHttpRequest + GetDescription + Send + Sync + 'static,
     ) -> &mut Self {
+        if self.controllers.is_none() {
+            self.controllers = Some(ControllersMiddleware::new(None, None));
+        }
         self.controllers
             .as_mut()
             .unwrap()
@@ -110,25 +127,29 @@ impl ServiceHttpServerBuilder {
         return self;
     }
 
-    pub fn start_http_server(&mut self) {
-        let controllers = Arc::new(self.controllers.take().unwrap());
-        let swagger_middleware = SwaggerMiddleware::new(
-            controllers.clone(),
-            self.app_name.clone(),
-            self.app_version.clone(),
-        );
+    pub fn build(&mut self) -> MyHttpServer {
+        let mut my_http_server = MyHttpServer::new(self.listen_address);
+
+        if let Some(controllers) = self.controllers.take() {
+            let controllers = Arc::new(controllers);
+            let swagger_middleware = SwaggerMiddleware::new(
+                controllers.clone(),
+                self.app_name.clone(),
+                self.app_version.clone(),
+            );
+
+            my_http_server.add_middleware(Arc::new(swagger_middleware));
+            my_http_server.add_middleware(controllers.clone());
+        }
 
         let is_alive = IsAliveMiddleware::new(self.app_name.clone(), self.app_version.clone());
 
-        self.server.add_middleware(Arc::new(is_alive));
-        self.server.add_middleware(Arc::new(swagger_middleware));
-        self.server.add_middleware(controllers.clone());
+        my_http_server.add_middleware(Arc::new(is_alive));
 
         for middleware in self.middlewares.iter() {
-            self.server.add_middleware(middleware.clone());
+            my_http_server.add_middleware(middleware.clone());
         }
 
-        self.server
-            .start(self.app_states.clone(), my_logger::LOGGER.clone());
+        my_http_server
     }
 }

@@ -1,7 +1,7 @@
-use my_http_server::controllers::{AuthErrorFactory, ControllersAuthorization};
+use my_http_server::MyHttpServer;
 use my_logger::my_seq_logger::{SeqLogger, SeqSettings};
 use my_telemetry::my_telemetry_writer::{MyTelemetrySettings, MyTelemetryWriter};
-use rust_extensions::{AppStates, MyTimer, MyTimerTick};
+use rust_extensions::{AppStates, MyTimer, MyTimerTick, StrOrString};
 
 #[cfg(feature = "grpc-server")]
 use hyper::Body;
@@ -30,11 +30,7 @@ use my_service_bus::{
 
 #[cfg(feature = "grpc-server")]
 use std::convert::Infallible;
-use std::{
-    net::{IpAddr, SocketAddr},
-    sync::Arc,
-    time::Duration,
-};
+use std::{sync::Arc, time::Duration};
 #[cfg(feature = "grpc-server")]
 use tonic::transport::server::Router;
 
@@ -45,15 +41,15 @@ use tonic::{
     transport::{NamedService, Server},
 };
 
-use crate::{ServiceHttpServerBuilder, ServiceInfo};
+use crate::{HttpServerBuilder, ServiceInfo};
 
 pub struct ServiceContext {
-    pub http_server: ServiceHttpServerBuilder,
+    pub http_server_builder: HttpServerBuilder,
+    pub http_server: Option<MyHttpServer>,
     pub telemetry_writer: MyTelemetryWriter,
     pub app_states: Arc<AppStates>,
-    pub app_name: String,
-    pub app_version: String,
-    pub default_ip: IpAddr,
+    pub app_name: StrOrString<'static>,
+    pub app_version: StrOrString<'static>,
     pub background_timers: Vec<MyTimer>,
     #[cfg(feature = "no-sql-reader")]
     pub my_no_sql_connection: Arc<MyNoSqlTcpConnection>,
@@ -68,7 +64,6 @@ impl ServiceContext {
         let app_states = Arc::new(AppStates::create_un_initialized());
         let app_name = settings.get_service_name();
         let app_version = settings.get_service_version();
-        let default_ip: IpAddr = IpAddr::from([0, 0, 0, 0]);
 
         #[cfg(feature = "no-sql-reader")]
         let my_no_sql_connection = Arc::new(MyNoSqlTcpConnection::new(
@@ -84,20 +79,13 @@ impl ServiceContext {
             my_logger::LOGGER.clone(),
         ));
 
-        let http_server = ServiceHttpServerBuilder::new(
-            app_states.clone(),
-            &app_name,
-            &app_version,
-            None,
-            None,
-            default_ip.clone(),
-        );
         println!("Initialized service context");
 
         SeqLogger::enable_from_connection_string(settings.clone());
 
         Self {
-            http_server: http_server,
+            http_server_builder: HttpServerBuilder::new(app_name.clone(), app_version.clone()),
+            http_server: None,
             telemetry_writer: MyTelemetryWriter::new(app_name.clone(), settings.clone()),
             app_states,
             #[cfg(feature = "no-sql-reader")]
@@ -106,33 +94,10 @@ impl ServiceContext {
             sb_client,
             app_name,
             app_version,
-            default_ip,
             #[cfg(feature = "grpc-server")]
             grpc_router: None,
             background_timers: vec![],
         }
-    }
-
-    pub fn setup_http(
-        &mut self,
-        authorization: Option<ControllersAuthorization>,
-        auth_error_factory: Option<Arc<dyn AuthErrorFactory + Send + Sync + 'static>>,
-    ) -> &mut Self {
-        self.http_server = ServiceHttpServerBuilder::new(
-            self.app_states.clone(),
-            &self.app_name,
-            &self.app_version,
-            authorization,
-            auth_error_factory,
-            self.default_ip,
-        );
-        self
-    }
-
-    pub fn update_default_ip(&mut self, ip: IpAddr) -> &mut Self {
-        self.default_ip = ip;
-        self.http_server.update_ip(ip);
-        self
     }
 
     pub fn register_background_job(
@@ -147,11 +112,8 @@ impl ServiceContext {
         self.background_timers.push(timer);
     }
 
-    pub fn configure_http_server(
-        &mut self,
-        config: impl Fn(&mut ServiceHttpServerBuilder),
-    ) -> &mut Self {
-        config(&mut self.http_server);
+    pub fn configure_http_server(&mut self, config: impl Fn(&mut HttpServerBuilder)) -> &mut Self {
+        config(&mut self.http_server_builder);
         self
     }
 
@@ -168,7 +130,10 @@ impl ServiceContext {
             .await;
         #[cfg(feature = "service-bus")]
         self.sb_client.start().await;
-        self.http_server.start_http_server();
+
+        let mut http_server = self.http_server_builder.build();
+        http_server.start(self.app_states.clone(), my_logger::LOGGER.clone());
+        self.http_server = Some(http_server);
 
         #[cfg(feature = "grpc-server")]
         {
