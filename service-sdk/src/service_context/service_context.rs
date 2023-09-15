@@ -45,7 +45,7 @@ use tonic::{
     transport::{NamedService, Server},
 };
 
-use crate::{ServiceInfo, ServiceHttpServerBuilder};
+use crate::{ServiceHttpServerBuilder, ServiceInfo};
 
 pub struct ServiceContext {
     pub http_server: ServiceHttpServerBuilder,
@@ -147,7 +147,10 @@ impl ServiceContext {
         self.background_timers.push(timer);
     }
 
-    pub fn configurate_http_server(&mut self, config: impl Fn(&mut ServiceHttpServerBuilder)) -> &mut Self {
+    pub fn configure_http_server(
+        &mut self,
+        config: impl Fn(&mut ServiceHttpServerBuilder),
+    ) -> &mut Self {
         config(&mut self.http_server);
         self
     }
