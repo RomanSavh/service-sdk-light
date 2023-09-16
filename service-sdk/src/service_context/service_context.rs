@@ -7,13 +7,15 @@ use rust_extensions::{AppStates, MyTimer, MyTimerTick, StrOrString};
 use hyper::Body;
 
 #[cfg(feature = "no-sql-writer")]
-use my_no_sql::data_writer::MyNoSqlWriterSettings;
+use my_no_sql_sdk::data_writer::MyNoSqlWriterSettings;
 
 #[cfg(any(feature = "no-sql-reader", feature = "no-sql-writer"))]
-use my_no_sql::server_abstractions::MyNoSqlEntity;
+use my_no_sql_sdk::abstractions::MyNoSqlEntity;
 
 #[cfg(feature = "no-sql-reader")]
-use my_no_sql::reader::{MyNoSqlDataReader, MyNoSqlTcpConnection, MyNoSqlTcpConnectionSettings};
+use my_no_sql_sdk::reader::{
+    MyNoSqlDataReader, MyNoSqlTcpConnection, MyNoSqlTcpConnectionSettings,
+};
 
 #[cfg(feature = "no-sql-reader")]
 use serde::de::DeserializeOwned;
