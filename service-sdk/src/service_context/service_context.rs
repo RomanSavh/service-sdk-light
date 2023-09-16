@@ -29,7 +29,10 @@ use my_service_bus::{
 
 use std::{sync::Arc, time::Duration};
 
-use crate::{GrpcServer, GrpcServerBuilder, HttpServerBuilder, ServiceInfo};
+use crate::{HttpServerBuilder, ServiceInfo};
+
+#[cfg(feature = "grpc")]
+use crate::{GrpcServer, GrpcServerBuilder};
 
 pub struct ServiceContext {
     pub http_server_builder: HttpServerBuilder,
@@ -88,6 +91,7 @@ impl ServiceContext {
             #[cfg(feature = "grpc")]
             grpc_server_builder: None,
             background_timers: vec![],
+            #[cfg(feature = "grpc")]
             grpc_server: None,
         }
     }
