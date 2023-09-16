@@ -74,6 +74,7 @@ my-http-server = { tag = "0.6.0", git = "https://github.com/MyJetTools/my-http-s
 my-postgres = { tag = "0.5.0", git = "https://github.com/MyJetTools/my-postgres.git", features = [
     "with-telemetry",
     "with-tls",
+    "macros",
 ], optional = true }
 
 my-grpc-extensions = { optional = true, tag = "0.5.0", git = "https://github.com/MyJetTools/my-grpc-extensions", features = [
