@@ -7,9 +7,9 @@ edition = "2021"
 
 [features]
 default = []
-macros = ["my-no-sql-sdk?/macros", "my-service-bus?/macros"]
+macros = ["my-no-sql-sdk?/macros", "my-service-bus?/macros", "my-grpc-extensions?/grpc-server", "my-grpc-extensions?/grpc-client"]
 
-full = ["service-bus", "no-sql-reader", "no-sql-writer", "grpc-server", "psql"]
+full = ["service-bus", "no-sql-reader", "no-sql-writer", "grpc", "psql"]
 service-bus = ["dep:my-service-bus", "service-sdk-macros/service-bus"]
 no-sql-reader = [
     "dep:my-no-sql-sdk",
@@ -23,7 +23,7 @@ no-sql-writer = [
     "service-sdk-macros/no-sql-writer",
 ]
 
-grpc-server = ["dep:tonic", "dep:hyper"]
+grpc = ["dep:tonic", "dep:hyper", "dep:my-grpc-extensions"]
 psql = ["dep:my-postgres", "service-sdk-macros/psql"]
 
 [dependencies]
@@ -70,3 +70,7 @@ my-postgres = { tag = "0.4.3", git = "https://github.com/MyJetTools/my-postgres.
     "with-logs-and-telemetry",
     "with-tls",
 ], optional = true }
+
+my-grpc-extensions = { optional = true, tag = "0.5.0", git = "https://github.com/MyJetTools/my-grpc-extensions", features = [
+    "with-telemetry"
+] }

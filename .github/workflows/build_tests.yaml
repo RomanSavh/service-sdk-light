@@ -66,7 +66,7 @@ jobs:
           toolchain: stable
       - name: Install Protoc
         uses: arduino/setup-protoc@v1     
-      - run: cargo build --features grpc-server
+      - run: cargo build --features grpc
   build-psql:
     runs-on: ubuntu-latest
     steps:

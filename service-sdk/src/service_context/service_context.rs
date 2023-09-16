@@ -3,7 +3,7 @@ use my_logger::my_seq_logger::{SeqLogger, SeqSettings};
 use my_telemetry::my_telemetry_writer::{MyTelemetrySettings, MyTelemetryWriter};
 use rust_extensions::{AppStates, MyTimer, MyTimerTick, StrOrString};
 
-#[cfg(feature = "grpc-server")]
+#[cfg(feature = "grpc")]
 use hyper::Body;
 
 #[cfg(feature = "no-sql-writer")]
@@ -30,13 +30,13 @@ use my_service_bus::{
     client::{MyServiceBusClient, MyServiceBusSettings},
 };
 
-#[cfg(feature = "grpc-server")]
+#[cfg(feature = "grpc")]
 use std::convert::Infallible;
 use std::{net::SocketAddr, sync::Arc, time::Duration};
-#[cfg(feature = "grpc-server")]
+#[cfg(feature = "grpc")]
 use tonic::transport::server::Router;
 
-#[cfg(feature = "grpc-server")]
+#[cfg(feature = "grpc")]
 use tonic::{
     body::BoxBody,
     codegen::{http::Request, Service},
@@ -58,7 +58,7 @@ pub struct ServiceContext {
     pub my_no_sql_connection: Arc<MyNoSqlTcpConnection>,
     #[cfg(feature = "service-bus")]
     pub sb_client: Arc<MyServiceBusClient>,
-    #[cfg(feature = "grpc-server")]
+    #[cfg(feature = "grpc")]
     pub grpc_router: Option<Router>,
 }
 
@@ -97,7 +97,7 @@ impl ServiceContext {
             sb_client,
             app_name,
             app_version,
-            #[cfg(feature = "grpc-server")]
+            #[cfg(feature = "grpc")]
             grpc_router: None,
             background_timers: vec![],
         }
@@ -138,7 +138,7 @@ impl ServiceContext {
         http_server.start(self.app_states.clone(), my_logger::LOGGER.clone());
         self.http_server = Some(http_server);
 
-        #[cfg(feature = "grpc-server")]
+        #[cfg(feature = "grpc")]
         {
             let grpc_addr = SocketAddr::new(crate::consts::get_default_ip_address(), 8888);
             self.grpc_router
@@ -187,7 +187,7 @@ impl ServiceContext {
         return self.sb_client.get_publisher(do_retries).await;
     }
 
-    #[cfg(feature = "grpc-server")]
+    #[cfg(feature = "grpc")]
     pub fn add_grpc_service<S>(&mut self, svc: S)
     where
         S: Service<Request<Body>, Response = hyper::Response<BoxBody>, Error = Infallible>
