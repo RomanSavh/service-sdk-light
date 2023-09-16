@@ -10,13 +10,13 @@ default = []
 full = ["service-bus", "no-sql-reader", "no-sql-writer", "grpc-server", "psql"]
 service-bus = ["dep:my-service-bus", "service-sdk-macros/service-bus"]
 no-sql-reader = [
-    "dep:my-no-sql",
+    "dep:my-no-sql-sdk",
     "dep:serde",
     "service-sdk-macros/no-sql-reader",
 ]
 
 no-sql-writer = [
-    "dep:my-no-sql",
+    "dep:my-no-sql-sdk",
     "dep:serde",
     "service-sdk-macros/no-sql-writer",
 ]
@@ -44,10 +44,10 @@ my-telemetry = { tag = "1.0.1", git = "https://github.com/MyJetTools/my-telemetr
     "my-telemetry-writer",
 ] }
 
-my-no-sql = { optional = true, git = "https://github.com/MyJetTools/my-no-sql.git", tag = "0.1.1", features = [
+my-no-sql-sdk = { optional = true, git = "https://github.com/MyJetTools/my-no-sql-sdk.git", tag = "0.1.1", features = [
     "data-writer",
     "reader",
-    "server-abstractions",
+    "abstractions",
 ] }
 
 

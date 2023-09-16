@@ -13,4 +13,4 @@ pub extern crate my_telemetry;
 pub extern crate my_logger;
 
 #[cfg(any(feature = "no-sql-reader", feature = "no-sql-writer"))]
-pub extern crate my_no_sql;
+pub extern crate my_no_sql_sdk;
