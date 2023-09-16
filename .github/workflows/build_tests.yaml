@@ -8,89 +8,72 @@ on:
 
 jobs:
   build-default:
-  
     runs-on: ubuntu-latest
     steps:
-      - name: Install Protoc
-        uses: arduino/setup-protoc@v1             
-      - run: cargo build --release
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-
-      - name: Build default
-        run: cargo build
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1     
+      - run: cargo build --release
   build-full:
     runs-on: ubuntu-latest
     steps:
-      - name: Install Protoc
-        uses: arduino/setup-protoc@v1             
-      - run: cargo build --release
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - name: Build full
-        run: cargo build --features full
-  build-no-sql-reader:
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1     
+      - run: cargo build --all-features
+  build-ns-reader:
     runs-on: ubuntu-latest
     steps:
-      - name: Install Protoc
-        uses: arduino/setup-protoc@v1             
-      - run: cargo build --release
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - name: Build no-sql
-        run: cargo build --features no-sql-reader
-  build-no-sql-writer:
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1     
+      - run: cargo build --features no-sql-reader
+  build-ns-writer:
     runs-on: ubuntu-latest
     steps:
-      - name: Install Protoc
-        uses: arduino/setup-protoc@v1             
-      - run: cargo build --release
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - name: Build no-sql
-        run: cargo build --features no-sql-writer
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1     
+      - run: cargo build --features no-sql-writer
   build-sb:
-  
     runs-on: ubuntu-latest
     steps:
-      - name: Install Protoc
-        uses: arduino/setup-protoc@v1             
-      - run: cargo build --release
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - name: Build service-bus
-        run: cargo build --features service-bus
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1     
+      - run: cargo build --features service-bus
   build-grpc:
     runs-on: ubuntu-latest
     steps:
-      - name: Install Protoc
-        uses: arduino/setup-protoc@v1             
-      - run: cargo build --release
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - name: Build grpc-server
-        run: cargo build --features grpc-server
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1     
+      - run: cargo build --features grpc-server
   build-psql:
     runs-on: ubuntu-latest
     steps:
-      - name: Install Protoc
-        uses: arduino/setup-protoc@v1             
-      - run: cargo build --release
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - name: Build grpc-server
-        run: cargo build --features psql
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1     
+      - run: cargo build --features psql
