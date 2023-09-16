@@ -3,9 +3,6 @@ use my_logger::my_seq_logger::{SeqLogger, SeqSettings};
 use my_telemetry::my_telemetry_writer::{MyTelemetrySettings, MyTelemetryWriter};
 use rust_extensions::{AppStates, MyTimer, MyTimerTick, StrOrString};
 
-#[cfg(feature = "grpc")]
-use hyper::Body;
-
 #[cfg(feature = "no-sql-writer")]
 use my_no_sql_sdk::data_writer::MyNoSqlWriterSettings;
 
@@ -30,20 +27,9 @@ use my_service_bus::{
     client::{MyServiceBusClient, MyServiceBusSettings},
 };
 
-#[cfg(feature = "grpc")]
-use std::convert::Infallible;
-use std::{net::SocketAddr, sync::Arc, time::Duration};
-#[cfg(feature = "grpc")]
-use tonic::transport::server::Router;
+use std::{sync::Arc, time::Duration};
 
-#[cfg(feature = "grpc")]
-use tonic::{
-    body::BoxBody,
-    codegen::{http::Request, Service},
-    transport::{NamedService, Server},
-};
-
-use crate::{HttpServerBuilder, ServiceInfo};
+use crate::{GrpcServer, GrpcServerBuilder, HttpServerBuilder, ServiceInfo};
 
 pub struct ServiceContext {
     pub http_server_builder: HttpServerBuilder,
@@ -59,7 +45,9 @@ pub struct ServiceContext {
     #[cfg(feature = "service-bus")]
     pub sb_client: Arc<MyServiceBusClient>,
     #[cfg(feature = "grpc")]
-    pub grpc_router: Option<Router>,
+    pub grpc_server_builder: Option<GrpcServerBuilder>,
+    #[cfg(feature = "grpc")]
+    pub grpc_server: Option<GrpcServer>,
 }
 
 impl ServiceContext {
@@ -98,8 +86,9 @@ impl ServiceContext {
             app_name,
             app_version,
             #[cfg(feature = "grpc")]
-            grpc_router: None,
+            grpc_server_builder: None,
             background_timers: vec![],
+            grpc_server: None,
         }
     }
 
@@ -139,14 +128,8 @@ impl ServiceContext {
         self.http_server = Some(http_server);
 
         #[cfg(feature = "grpc")]
-        {
-            let grpc_addr = SocketAddr::new(crate::consts::get_default_ip_address(), 8888);
-            self.grpc_router
-                .take()
-                .expect("Grpc service is not defined. Cannot start grpc server")
-                .serve(grpc_addr)
-                .await
-                .unwrap();
+        if let Some(mut grpc_server_builder) = self.grpc_server_builder.take() {
+            self.grpc_server = Some(grpc_server_builder.build());
         }
 
         println!("Application is stated");
@@ -188,15 +171,9 @@ impl ServiceContext {
     }
 
     #[cfg(feature = "grpc")]
-    pub fn add_grpc_service<S>(&mut self, svc: S)
-    where
-        S: Service<Request<Body>, Response = hyper::Response<BoxBody>, Error = Infallible>
-            + NamedService
-            + Clone
-            + Send
-            + 'static,
-        S::Future: Send + 'static,
-    {
-        self.grpc_router = Some(Server::builder().add_service(svc));
+    pub fn configure_grpc_server(&mut self, config: impl Fn(&mut GrpcServerBuilder)) {
+        let mut grpc_server_builder = GrpcServerBuilder::new();
+        config(&mut grpc_server_builder);
+        self.grpc_server_builder = Some(grpc_server_builder);
     }
 }
