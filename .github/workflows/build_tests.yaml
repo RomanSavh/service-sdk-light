@@ -67,7 +67,7 @@ jobs:
       - name: Install Protoc
         uses: arduino/setup-protoc@v1     
       - run: cargo build --features grpc
-  build-psql:
+  build-postgres:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -76,4 +76,4 @@ jobs:
           toolchain: stable
       - name: Install Protoc
         uses: arduino/setup-protoc@v1     
-      - run: cargo build --features psql
+      - run: cargo build --features postgres

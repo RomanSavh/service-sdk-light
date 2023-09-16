@@ -14,7 +14,7 @@ macros = [
     "my-grpc-extensions?/grpc-client",
 ]
 
-full = ["service-bus", "no-sql-reader", "no-sql-writer", "grpc", "psql"]
+full = ["service-bus", "no-sql-reader", "no-sql-writer", "grpc", "postgres"]
 service-bus = ["dep:my-service-bus", "service-sdk-macros/service-bus"]
 no-sql-reader = [
     "dep:my-no-sql-sdk",
@@ -29,7 +29,7 @@ no-sql-writer = [
 ]
 
 grpc = ["dep:tonic", "dep:hyper", "dep:my-grpc-extensions"]
-psql = ["dep:my-postgres", "service-sdk-macros/psql"]
+postgres = ["dep:my-postgres", "service-sdk-macros/postgres"]
 
 [dependencies]
 serde = { version = "*", optional = true }
@@ -71,8 +71,8 @@ my-http-server = { tag = "0.6.0", git = "https://github.com/MyJetTools/my-http-s
     "with-telemetry",
 ] }
 
-my-postgres = { tag = "0.4.3", git = "https://github.com/MyJetTools/my-postgres.git", features = [
-    "with-logs-and-telemetry",
+my-postgres = { tag = "0.5.0", git = "https://github.com/MyJetTools/my-postgres.git", features = [
+    "with-telemetry",
     "with-tls",
 ], optional = true }
 

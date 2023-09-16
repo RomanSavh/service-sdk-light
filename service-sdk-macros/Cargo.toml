@@ -8,7 +8,7 @@ edition = "2021"
 service-bus = []
 no-sql-reader = []
 no-sql-writer = []
-psql = []
+postgres = []
 
 
 [lib]
