@@ -7,6 +7,8 @@ edition = "2021"
 
 [features]
 default = []
+macros = ["my-no-sql-sdk?/macros", "my-service-bus?/macros"]
+
 full = ["service-bus", "no-sql-reader", "no-sql-writer", "grpc-server", "psql"]
 service-bus = ["dep:my-service-bus", "service-sdk-macros/service-bus"]
 no-sql-reader = [
