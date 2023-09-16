@@ -17,3 +17,6 @@ pub extern crate my_no_sql_sdk;
 
 #[cfg(feature = "grpc")]
 pub extern crate my_grpc_extensions;
+
+#[cfg(feature = "postgres")]
+pub extern crate my_postgres;
