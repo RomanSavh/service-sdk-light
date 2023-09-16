@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-default = ["no-sql-reader"]
+default = []
 full = ["service-bus", "no-sql-reader", "no-sql-writer", "grpc-server", "psql"]
 service-bus = ["dep:my-service-bus", "service-sdk-macros/service-bus"]
 no-sql-reader = [

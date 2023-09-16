@@ -28,7 +28,7 @@ pub struct HttpServerBuilder {
 impl HttpServerBuilder {
     pub fn new(app_name: StrOrString<'static>, app_version: StrOrString<'static>) -> Self {
         Self {
-            listen_address: SocketAddr::new(IpAddr::from([0, 0, 0, 0]), 8000),
+            listen_address: SocketAddr::new(crate::consts::get_default_ip_address(), 8000),
             middlewares: vec![],
             controllers: None,
             app_name: app_name.to_string(),

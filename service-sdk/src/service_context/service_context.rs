@@ -30,7 +30,7 @@ use my_service_bus::{
 
 #[cfg(feature = "grpc-server")]
 use std::convert::Infallible;
-use std::{sync::Arc, time::Duration};
+use std::{net::SocketAddr, sync::Arc, time::Duration};
 #[cfg(feature = "grpc-server")]
 use tonic::transport::server::Router;
 
@@ -46,6 +46,7 @@ use crate::{HttpServerBuilder, ServiceInfo};
 pub struct ServiceContext {
     pub http_server_builder: HttpServerBuilder,
     pub http_server: Option<MyHttpServer>,
+
     pub telemetry_writer: MyTelemetryWriter,
     pub app_states: Arc<AppStates>,
     pub app_name: StrOrString<'static>,
@@ -73,7 +74,7 @@ impl ServiceContext {
 
         #[cfg(feature = "service-bus")]
         let sb_client = Arc::new(MyServiceBusClient::new(
-            app_name.to_string(),
+            app_name.clone(),
             app_version.clone(),
             settings.clone(),
             my_logger::LOGGER.clone(),
@@ -137,7 +138,7 @@ impl ServiceContext {
 
         #[cfg(feature = "grpc-server")]
         {
-            let grpc_addr = SocketAddr::new(self.default_ip, 8888);
+            let grpc_addr = SocketAddr::new(crate::consts::get_default_ip_address(), 8888);
             self.grpc_router
                 .take()
                 .expect("Grpc service is not defined. Cannot start grpc server")
