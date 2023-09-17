@@ -23,8 +23,8 @@ pub fn generate_settings_signature(_item: TokenStream) -> TokenStream {
     result.into()
 }
 
-#[proc_macro_derive(CommonSettingsTraits)]
-pub fn generate_common_settings_traits(_input: TokenStream) -> TokenStream {
+#[proc_macro_derive(SdkSettingsTraits)]
+pub fn generate_sdk_settings_traits(_input: TokenStream) -> TokenStream {
     quote::quote! {
     #[async_trait::async_trait]
     impl service_sdk::ServiceInfo for SettingsReader {
