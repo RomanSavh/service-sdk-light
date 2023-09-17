@@ -41,7 +41,6 @@ tonic = { version = "*", features = [
 ], optional = true }
 hyper = { version = "*", optional = true }
 
-
 service-sdk-macros = { path = "../service-sdk-macros" }
 
 rust-extensions = { tag = "0.1.3", git = "https://github.com/MyJetTools/rust-extensions.git" }
@@ -58,7 +57,7 @@ my-no-sql-sdk = { optional = true, git = "https://github.com/MyJetTools/my-no-sq
 ] }
 
 
-my-service-bus = { optional = true, git = "https://github.com/MyJetTools/my-service-bus-sdk.git", tag = "0.1.0", features = [
+my-service-bus = { optional = true, git = "https://github.com/MyJetTools/my-service-bus-sdk.git", tag = "1.0.0", features = [
     "client",
 ] }
 
