@@ -17,8 +17,11 @@ pub fn generate_settings_signature(_item: TokenStream) -> TokenStream {
         traits.push(quote::quote!(+ MyNoSqlWriterSettings));
     }
 
-    quote::quote! {
+    let result = quote::quote! {
        Arc<impl MyTelemetrySettings + ServiceInfo + SeqSettings #(#traits)* + Send + Sync + 'static>
-    }
-    .into()
+    };
+
+    println!("Settings configuration: {}", result);
+
+    result.into()
 }
