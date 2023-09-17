@@ -15,6 +15,8 @@ pub extern crate my_logger;
 
 pub extern crate my_settings_reader;
 
+pub extern crate service_sdk_macros as macros;
+
 #[cfg(any(feature = "no-sql-reader", feature = "no-sql-writer"))]
 pub extern crate my_no_sql_sdk;
 
