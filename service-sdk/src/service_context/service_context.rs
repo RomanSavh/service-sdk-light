@@ -54,33 +54,37 @@ pub struct ServiceContext {
 }
 
 impl ServiceContext {
-    pub fn new(settings: service_sdk_macros::generate_settings_signature!()) -> Self {
+    pub async fn new(settings_reader: service_sdk_macros::generate_settings_signature!()) -> Self {
         let app_states = Arc::new(AppStates::create_un_initialized());
-        let app_name = settings.get_service_name();
-        let app_version = settings.get_service_version();
+        let app_name = settings_reader.get_service_name();
+        let app_version = settings_reader.get_service_version();
+
+        my_logger::LOGGER
+            .populate_app_and_version(app_name.clone(), app_version.clone())
+            .await;
+
+        SeqLogger::enable_from_connection_string(settings_reader.clone());
 
         #[cfg(feature = "no-sql-reader")]
         let my_no_sql_connection = Arc::new(MyNoSqlTcpConnection::new(
             app_name.clone(),
-            settings.clone(),
+            settings_reader.clone(),
         ));
 
         #[cfg(feature = "service-bus")]
         let sb_client = Arc::new(MyServiceBusClient::new(
             app_name.clone(),
             app_version.clone(),
-            settings.clone(),
+            settings_reader.clone(),
             my_logger::LOGGER.clone(),
         ));
 
         println!("Initialized service context");
 
-        SeqLogger::enable_from_connection_string(settings.clone());
-
         Self {
             http_server_builder: HttpServerBuilder::new(app_name.clone(), app_version.clone()),
             http_server: None,
-            telemetry_writer: MyTelemetryWriter::new(app_name.clone(), settings.clone()),
+            telemetry_writer: MyTelemetryWriter::new(app_name.clone(), settings_reader.clone()),
             app_states,
             #[cfg(feature = "no-sql-reader")]
             my_no_sql_connection,
