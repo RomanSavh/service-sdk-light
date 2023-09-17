@@ -21,7 +21,7 @@ pub fn generate_settings_signature(_item: TokenStream) -> TokenStream {
        Arc<impl MyTelemetrySettings + ServiceInfo + SeqSettings #(#traits)* + Send + Sync + 'static>
     };
 
-    println!("Settings configuration: {}", result);
+    // println!("Settings configuration: {}", result);
 
     result.into()
 }
