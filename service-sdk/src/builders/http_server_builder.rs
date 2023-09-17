@@ -19,8 +19,7 @@ use rust_extensions::StrOrString;
 pub struct HttpServerBuilder {
     listen_address: SocketAddr,
 
-    middlewares_before_controllers: Vec<Arc<dyn HttpServerMiddleware + Send + Sync + 'static>>,
-    middlewares_after_controllers: Vec<Arc<dyn HttpServerMiddleware + Send + Sync + 'static>>,
+    auth_middleware: Option<Arc<dyn HttpServerMiddleware + Send + Sync + 'static>>,
 
     app_name: String,
     app_version: String,
@@ -30,8 +29,8 @@ impl HttpServerBuilder {
     pub fn new(app_name: StrOrString<'static>, app_version: StrOrString<'static>) -> Self {
         Self {
             listen_address: SocketAddr::new(crate::consts::get_default_ip_address(), 8000),
-            middlewares_before_controllers: vec![],
-            middlewares_after_controllers: vec![],
+            auth_middleware: None,
+
             controllers: None,
             app_name: app_name.to_string(),
             app_version: app_version.to_string(),
@@ -64,17 +63,11 @@ impl HttpServerBuilder {
         self.listen_address = SocketAddr::new(ip, port);
     }
 
-    pub fn add_middleware(
+    pub fn add_auth_middleware(
         &mut self,
-        is_before_controllers: bool,
         middleware: Arc<dyn HttpServerMiddleware + Send + Sync + 'static>,
     ) -> &mut Self {
-        if is_before_controllers {
-            self.middlewares_before_controllers.push(middleware);
-        } else {
-            self.middlewares_after_controllers.push(middleware);
-        }
-
+        self.auth_middleware = Some(middleware);
         return self;
     }
 
@@ -137,9 +130,8 @@ impl HttpServerBuilder {
     pub fn build(&mut self) -> MyHttpServer {
         let mut my_http_server = MyHttpServer::new(self.listen_address);
 
-        for middleware in self.middlewares_before_controllers.drain(..) {
-            my_http_server.add_middleware(middleware);
-        }
+        let is_alive = IsAliveMiddleware::new(self.app_name.clone(), self.app_version.clone());
+        my_http_server.add_middleware(Arc::new(is_alive));
 
         if let Some(controllers) = self.controllers.take() {
             let controllers = Arc::new(controllers);
@@ -150,15 +142,11 @@ impl HttpServerBuilder {
             );
 
             my_http_server.add_middleware(Arc::new(swagger_middleware));
+
+            if let Some(auth_middleware) = self.auth_middleware.take() {
+                my_http_server.add_middleware(auth_middleware);
+            }
             my_http_server.add_middleware(controllers.clone());
-        }
-
-        let is_alive = IsAliveMiddleware::new(self.app_name.clone(), self.app_version.clone());
-
-        my_http_server.add_middleware(Arc::new(is_alive));
-
-        for middleware in self.middlewares_after_controllers.drain(..) {
-            my_http_server.add_middleware(middleware);
         }
 
         my_http_server
