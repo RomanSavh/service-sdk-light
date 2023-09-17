@@ -5,6 +5,7 @@ use std::{
 
 use hyper::Body;
 
+use my_logger::LogEventCtx;
 use tokio::task::JoinHandle;
 use tonic::{
     body::BoxBody,
@@ -63,7 +64,7 @@ impl GrpcServerBuilder {
 
 pub struct GrpcServer {
     server: Option<Router>,
-    join_handle: Option<JoinHandle<Result<(), Error>>>,
+    join_handle: Option<JoinHandle<()>>,
 }
 
 impl GrpcServer {
@@ -75,8 +76,16 @@ impl GrpcServer {
     }
 
     pub fn start(&mut self, grpc_addr: SocketAddr) {
+        my_logger::LOGGER.write_info(
+            "Starting GRPC Server".to_string(),
+            format!("GRPC server starts at: {:?}", &grpc_addr),
+            LogEventCtx::new(),
+        );
+
         let server = self.server.take().unwrap();
-        let result = tokio::spawn(async move { server.serve(grpc_addr).await });
+        let result = tokio::spawn(async move {
+            server.serve(grpc_addr).await.unwrap();
+        });
         self.join_handle = Some(result);
     }
 }
