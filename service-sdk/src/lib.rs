@@ -8,6 +8,7 @@ pub use service_context::*;
 
 pub extern crate my_http_server;
 
+pub extern crate flurl;
 pub extern crate my_telemetry;
 
 pub extern crate my_logger;
