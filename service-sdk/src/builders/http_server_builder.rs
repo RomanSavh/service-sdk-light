@@ -71,7 +71,7 @@ impl HttpServerBuilder {
         return self;
     }
 
-    pub fn register_get(
+    pub fn register_get_action(
         &mut self,
         action: impl GetAction + HandleHttpRequest + GetDescription + Send + Sync + 'static,
     ) -> &mut Self {
@@ -85,7 +85,7 @@ impl HttpServerBuilder {
         return self;
     }
 
-    pub fn register_post(
+    pub fn register_post_action(
         &mut self,
         action: impl PostAction + HandleHttpRequest + GetDescription + Send + Sync + 'static,
     ) -> &mut Self {
@@ -99,7 +99,7 @@ impl HttpServerBuilder {
         return self;
     }
 
-    pub fn register_put(
+    pub fn register_put_action(
         &mut self,
         action: impl PutAction + HandleHttpRequest + GetDescription + Send + Sync + 'static,
     ) -> &mut Self {
@@ -113,7 +113,7 @@ impl HttpServerBuilder {
         return self;
     }
 
-    pub fn register_delete(
+    pub fn register_delete_action(
         &mut self,
         action: impl DeleteAction + HandleHttpRequest + GetDescription + Send + Sync + 'static,
     ) -> &mut Self {
