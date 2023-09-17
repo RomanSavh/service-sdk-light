@@ -39,3 +39,12 @@ pub fn generate_sdk_settings_traits(_input: TokenStream) -> TokenStream {
         }
     .into()
 }
+
+#[proc_macro]
+pub fn use_grpc_client(_input: TokenStream) -> TokenStream {
+    quote::quote! {
+        use service_sdk::my_grpc_extensions;
+        use service_sdk::my_telemetry;
+    }
+    .into()
+}
