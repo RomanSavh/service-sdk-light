@@ -10,8 +10,8 @@ pub fn generate_settings_signature(_item: TokenStream) -> TokenStream {
     #[cfg(feature = "service-bus")]
     traits.push(quote::quote!(+ MyServiceBusSettings));
 
-    //  #[cfg(feature = "no-sql-reader")]
-    // traits.push(quote::quote!(+ MyNoSqlTcpConnectionSettings));
+    #[cfg(feature = "no-sql-reader")]
+    traits.push(quote::quote!(+ MyNoSqlTcpConnectionSettings));
 
     #[cfg(feature = "no-sql-writer")]
     traits.push(quote::quote!(+ MyNoSqlWriterSettings));
