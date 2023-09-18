@@ -84,3 +84,12 @@ pub fn use_my_http_server(_input: TokenStream) -> TokenStream {
     }
     .into()
 }
+
+#[proc_macro]
+pub fn use_my_postgres(_input: TokenStream) -> TokenStream {
+    quote::quote! {
+        use service_sdk::my_postgres;
+        use service_sdk::my_postgres::macros::*;
+    }
+    .into()
+}
