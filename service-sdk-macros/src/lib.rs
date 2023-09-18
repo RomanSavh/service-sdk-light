@@ -53,6 +53,8 @@ pub fn use_grpc_client(_input: TokenStream) -> TokenStream {
 pub fn use_settings(_input: TokenStream) -> TokenStream {
     quote::quote! {
         use service_sdk::flurl;
+        use service_sdk::async_trait;
+        use service_sdk::serde_yaml;
         use service_sdk::macros::SdkSettingsTraits;
     }
     .into()

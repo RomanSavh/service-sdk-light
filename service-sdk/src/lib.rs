@@ -9,17 +9,18 @@ pub use service_context::*;
 pub extern crate my_http_server;
 
 #[cfg(feature = "settings")]
-pub mod service_sdk_settings{
-    pub extern crate flurl;
+pub mod service_sdk_settings {
     pub extern crate async_trait;
-    pub extern crate serde_yaml;
+    pub extern crate flurl;
     pub extern crate my_settings_reader;
+    pub extern crate serde_yaml;
 }
 
 pub extern crate my_telemetry;
 
+pub extern crate async_trait;
 pub extern crate my_logger;
-
+pub extern crate serde_yaml;
 
 pub extern crate service_sdk_macros as macros;
 
