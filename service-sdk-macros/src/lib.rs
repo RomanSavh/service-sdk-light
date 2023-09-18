@@ -44,6 +44,7 @@ pub fn generate_sdk_settings_traits(_input: TokenStream) -> TokenStream {
 pub fn use_grpc_client(_input: TokenStream) -> TokenStream {
     quote::quote! {
         use service_sdk::my_grpc_extensions;
+        use service_sdk::my_grpc_extensions::generate_grpc_client;
         use service_sdk::my_telemetry;
         use service_sdk::async_trait;
     }
