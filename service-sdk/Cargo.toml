@@ -7,6 +7,7 @@ edition = "2021"
 
 [features]
 default = []
+settings = ["dep:my-settings-reader", "dep:async-trait", "dep:flurl", "dep:serde_yaml"]
 macros = [
     "my-no-sql-sdk?/macros",
     "my-service-bus?/macros",
@@ -14,7 +15,7 @@ macros = [
     "my-grpc-extensions?/grpc-client",
 ]
 
-full = ["service-bus", "no-sql-reader", "no-sql-writer", "grpc", "postgres"]
+full = ["service-bus", "no-sql-reader", "no-sql-writer", "grpc", "postgres", "settings", "macros"]
 service-bus = ["dep:my-service-bus", "service-sdk-macros/service-bus"]
 no-sql-reader = [
     "dep:my-no-sql-sdk",
@@ -80,8 +81,11 @@ my-grpc-extensions = { optional = true, tag = "0.5.0", git = "https://github.com
     "with-telemetry",
 ] }
 
-my-settings-reader = { tag = "0.1.5", git = "https://github.com/MyJetTools/my-settings-reader.git", features = [
+
+my-settings-reader = { optional = true, tag = "0.1.5", git = "https://github.com/MyJetTools/my-settings-reader.git", features = [
     "background-reader",
 ] }
 
-flurl = { tag = "0.4.0", git = "https://github.com/MyJetTools/fl-url.git" }
+flurl = { optional = true, tag = "0.4.0", git = "https://github.com/MyJetTools/fl-url.git" }
+async-trait = { version = "*", optional = true }
+serde_yaml = { version = "*", optional = true }
