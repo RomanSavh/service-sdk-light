@@ -18,7 +18,7 @@ pub extern crate serde_yaml;
 
 pub extern crate service_sdk_macros as macros;
 
-#[cfg(any(feature = "no-sql-reader", feature = "no-sql-writer"))]
+#[cfg(any(feature = "no-sql-reader", feature = "no-sql-writer", feature = "macros"))]
 pub extern crate my_no_sql_sdk;
 
 #[cfg(feature = "grpc")]
