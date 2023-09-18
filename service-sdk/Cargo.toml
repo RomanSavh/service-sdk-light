@@ -94,5 +94,5 @@ my-settings-reader = { optional = true, tag = "0.1.5", git = "https://github.com
     "background-reader",
 ] }
 
-flurl = { optional = true, tag = "0.4.0", git = "https://github.com/MyJetTools/fl-url.git" }
+flurl = { tag = "0.4.0", git = "https://github.com/MyJetTools/fl-url.git" }
 serde_yaml = { version = "*" }

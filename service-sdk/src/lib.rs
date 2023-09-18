@@ -20,6 +20,7 @@ pub extern crate my_telemetry;
 
 pub extern crate async_trait;
 pub extern crate my_logger;
+pub extern crate rust_extensions;
 pub extern crate serde_yaml;
 
 pub extern crate service_sdk_macros as macros;
