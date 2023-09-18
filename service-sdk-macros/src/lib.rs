@@ -26,7 +26,7 @@ pub fn generate_settings_signature(_item: TokenStream) -> TokenStream {
 #[proc_macro_derive(SdkSettingsTraits)]
 pub fn generate_sdk_settings_traits(_input: TokenStream) -> TokenStream {
     quote::quote! {
-    #[async_trait::async_trait]
+    #[async_trait]
     impl service_sdk::ServiceInfo for SettingsReader {
         fn get_service_name(&self) -> rust_extensions::StrOrString<'static> {
             env!("CARGO_PKG_NAME").into()
@@ -51,13 +51,27 @@ pub fn use_grpc_client(_input: TokenStream) -> TokenStream {
 }
 
 #[proc_macro]
+pub fn use_grpc_server(_input: TokenStream) -> TokenStream {
+    quote::quote! {
+        use service_sdk::my_grpc_extensions;
+        use service_sdk::my_telemetry;
+        use service_sdk::futures_core;
+        use service_sdk::async_trait::async_trait;
+        use service_sdk::my_grpc_extensions::server::with_telemetry;
+        use service_sdk::my_grpc_extensions::server::generate_server_stream;
+    }
+    .into()
+}
+
+#[proc_macro]
 pub fn use_settings(_input: TokenStream) -> TokenStream {
     quote::quote! {
         use service_sdk::flurl;
-        use service_sdk::async_trait;
+        use service_sdk::async_trait::async_trait;
         use service_sdk::serde_yaml;
         use service_sdk::my_settings_reader;
         use service_sdk::macros::SdkSettingsTraits;
+        use service_sdk::rust_extensions;
     }
     .into()
 }
@@ -67,6 +81,27 @@ pub fn use_my_http_server(_input: TokenStream) -> TokenStream {
     quote::quote! {
         use service_sdk::async_trait;
         use service_sdk::my_http_server;
+    }
+    .into()
+}
+
+#[proc_macro]
+pub fn use_my_postgres(_input: TokenStream) -> TokenStream {
+    quote::quote! {
+        use service_sdk::my_postgres;
+        use service_sdk::my_postgres::macros::*;
+        use service_sdk::my_telemetry::MyTelemetryContext;
+        use service_sdk::my_logger;
+    }
+    .into()
+}
+
+#[proc_macro]
+pub fn use_my_no_sql_entity(_input: TokenStream) -> TokenStream {
+    quote::quote! {
+        use service_sdk::my_no_sql_sdk;
+        use service_sdk::my_no_sql_sdk::macros::my_no_sql_entity;
+        use service_sdk::rust_extensions;
     }
     .into()
 }
