@@ -122,6 +122,8 @@ pub fn use_my_sb_subscriber(_input: TokenStream) -> TokenStream {
     quote::quote! {
         use service_sdk::my_service_bus;
         use service_sdk::rust_extensions;
+        use service_sdk::my_logger;
+        use service_sdk::my_telemetry::MyTelemetryContext;
     }
     .into()
 }
