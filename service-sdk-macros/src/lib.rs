@@ -90,6 +90,7 @@ pub fn use_my_postgres(_input: TokenStream) -> TokenStream {
     quote::quote! {
         use service_sdk::my_postgres;
         use service_sdk::my_postgres::macros::*;
+        use service_sdk::my_telemetry::MyTelemetryContext;
     }
     .into()
 }
