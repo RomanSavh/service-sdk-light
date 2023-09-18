@@ -90,7 +90,7 @@ my-grpc-extensions = { optional = true, tag = "0.5.0", git = "https://github.com
 ] }
 
 
-my-settings-reader = { optional = true, tag = "0.1.5", git = "https://github.com/MyJetTools/my-settings-reader.git", features = [
+my-settings-reader = { tag = "0.1.5", git = "https://github.com/MyJetTools/my-settings-reader.git", features = [
     "background-reader",
 ] }
 
