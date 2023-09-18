@@ -40,7 +40,11 @@ no-sql-writer = [
 ]
 
 grpc = ["dep:tonic", "dep:hyper", "dep:my-grpc-extensions"]
-postgres = ["dep:my-postgres", "service-sdk-macros/postgres"]
+postgres = [
+    "dep:my-postgres",
+    "dep:tokio-postgres",
+    "service-sdk-macros/postgres",
+]
 
 [dependencies]
 serde = { version = "*", optional = true }
@@ -85,6 +89,8 @@ my-postgres = { tag = "0.5.0", git = "https://github.com/MyJetTools/my-postgres.
     "with-tls",
     "macros",
 ], optional = true }
+
+tokio-postgres = { version = "*", optional = true }
 
 my-grpc-extensions = { optional = true, tag = "0.5.0", git = "https://github.com/MyJetTools/my-grpc-extensions", features = [
     "with-telemetry",
