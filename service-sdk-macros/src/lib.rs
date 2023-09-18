@@ -55,7 +55,7 @@ pub fn use_grpc_server(_input: TokenStream) -> TokenStream {
     quote::quote! {
         use service_sdk::my_grpc_extensions;
         use service_sdk::my_telemetry;
-        use service_sdk::async_trait;
+        use service_sdk::async_trait::async_trait;
         use service_sdk::my_grpc_extensions::server::with_telemetry;
         use service_sdk::my_grpc_extensions::server::generate_server_stream;
     }
@@ -66,7 +66,7 @@ pub fn use_grpc_server(_input: TokenStream) -> TokenStream {
 pub fn use_settings(_input: TokenStream) -> TokenStream {
     quote::quote! {
         use service_sdk::flurl;
-        use service_sdk::async_trait;
+        use service_sdk::async_trait::async_trait;
         use service_sdk::serde_yaml;
         use service_sdk::my_settings_reader;
         use service_sdk::macros::SdkSettingsTraits;
