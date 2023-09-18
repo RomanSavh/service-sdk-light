@@ -45,6 +45,7 @@ pub fn use_grpc_client(_input: TokenStream) -> TokenStream {
     quote::quote! {
         use service_sdk::my_grpc_extensions;
         use service_sdk::my_telemetry;
+        use service_sdk::async_trait;
     }
     .into()
 }
