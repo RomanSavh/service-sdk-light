@@ -9,7 +9,8 @@ edition = "2021"
 default = []
 settings = ["dep:my-settings-reader", "dep:async-trait", "dep:flurl", "dep:serde_yaml"]
 macros = [
-    "my-no-sql-sdk?/macros",
+    "dep:my-no-sql-sdk",
+    "my-no-sql-sdk/macros",
     "my-service-bus?/macros",
     "my-grpc-extensions?/grpc-server",
     "my-grpc-extensions?/grpc-client",
@@ -19,12 +20,14 @@ full = ["service-bus", "no-sql-reader", "no-sql-writer", "grpc", "postgres", "se
 service-bus = ["dep:my-service-bus", "service-sdk-macros/service-bus"]
 no-sql-reader = [
     "dep:my-no-sql-sdk",
+    "my-no-sql-sdk/data-reader",
     "dep:serde",
     "service-sdk-macros/no-sql-reader",
 ]
 
 no-sql-writer = [
     "dep:my-no-sql-sdk",
+    "my-no-sql-sdk/data-writer",
     "dep:serde",
     "service-sdk-macros/no-sql-writer",
 ]
@@ -52,8 +55,6 @@ my-telemetry = { tag = "1.0.1", git = "https://github.com/MyJetTools/my-telemetr
 ] }
 
 my-no-sql-sdk = { optional = true, git = "https://github.com/MyJetTools/my-no-sql-sdk.git", tag = "0.1.1", features = [
-    "data-writer",
-    "data-reader",
     "abstractions",
 ] }
 
