@@ -95,3 +95,12 @@ pub fn use_my_postgres(_input: TokenStream) -> TokenStream {
     }
     .into()
 }
+
+#[proc_macro]
+pub fn use_my_no_sql_entity(_input: TokenStream) -> TokenStream {
+    quote::quote! {
+        use service_sdk::my_no_sql_sdk;
+        use service_sdk::my_no_sql_sdk::macros::my_no_sql_entity;
+    }
+    .into()
+}
