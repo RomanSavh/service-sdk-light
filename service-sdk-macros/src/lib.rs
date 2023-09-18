@@ -26,7 +26,7 @@ pub fn generate_settings_signature(_item: TokenStream) -> TokenStream {
 #[proc_macro_derive(SdkSettingsTraits)]
 pub fn generate_sdk_settings_traits(_input: TokenStream) -> TokenStream {
     quote::quote! {
-    #[async_trait::async_trait]
+    #[async_trait]
     impl service_sdk::ServiceInfo for SettingsReader {
         fn get_service_name(&self) -> rust_extensions::StrOrString<'static> {
             env!("CARGO_PKG_NAME").into()
