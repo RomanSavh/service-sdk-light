@@ -123,7 +123,9 @@ pub fn use_my_sb_subscriber(_input: TokenStream) -> TokenStream {
         use service_sdk::my_service_bus;
         use service_sdk::rust_extensions;
         use service_sdk::my_logger;
+        use service_sdk::my_logger::LogEventCtx;
         use service_sdk::my_telemetry::MyTelemetryContext;
+        use my_service_bus_abstractions::subscriber::*;
     }
     .into()
 }
