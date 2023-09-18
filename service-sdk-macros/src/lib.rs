@@ -60,3 +60,12 @@ pub fn use_settings(_input: TokenStream) -> TokenStream {
     }
     .into()
 }
+
+#[proc_macro]
+pub fn use_my_http_server(_input: TokenStream) -> TokenStream {
+    quote::quote! {
+        use service_sdk::async_trait;
+        use service_sdk::my_http_server;
+    }
+    .into()
+}
