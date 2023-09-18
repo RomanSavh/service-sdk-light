@@ -77,16 +77,6 @@ jobs:
       - name: Install Protoc
         uses: arduino/setup-protoc@v1     
       - run: cargo build --features postgres
-  build-settings:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - name: Install Protoc
-        uses: arduino/setup-protoc@v1     
-      - run: cargo build --features settings
   build-macros:
     runs-on: ubuntu-latest
     steps:
