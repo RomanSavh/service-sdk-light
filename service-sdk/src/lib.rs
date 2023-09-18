@@ -26,3 +26,6 @@ pub extern crate my_grpc_extensions;
 
 #[cfg(feature = "postgres")]
 pub extern crate my_postgres;
+
+#[cfg(feature = "my-service-bus")]
+pub extern crate my_service_bus;

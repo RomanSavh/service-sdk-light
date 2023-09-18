@@ -7,7 +7,7 @@ pub fn generate_settings_signature(_item: TokenStream) -> TokenStream {
 
     traits.push(quote::quote!(+ SeqSettings));
 
-    #[cfg(feature = "service-bus")]
+    #[cfg(feature = "my-service-bus")]
     traits.push(quote::quote!(+ MyServiceBusSettings));
 
     #[cfg(feature = "no-sql-reader")]

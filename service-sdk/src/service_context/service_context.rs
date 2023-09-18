@@ -17,7 +17,7 @@ use my_no_sql_sdk::reader::{
 #[cfg(feature = "no-sql-reader")]
 use serde::de::DeserializeOwned;
 
-#[cfg(feature = "service-bus")]
+#[cfg(feature = "my-service-bus")]
 use my_service_bus::{
     abstractions::{
         publisher::{MySbMessageSerializer, MyServiceBusPublisher},
@@ -45,7 +45,7 @@ pub struct ServiceContext {
     pub background_timers: Vec<MyTimer>,
     #[cfg(feature = "no-sql-reader")]
     pub my_no_sql_connection: Arc<MyNoSqlTcpConnection>,
-    #[cfg(feature = "service-bus")]
+    #[cfg(feature = "my-service-bus")]
     pub sb_client: Arc<MyServiceBusClient>,
     #[cfg(feature = "grpc")]
     pub grpc_server_builder: Option<GrpcServerBuilder>,
@@ -71,7 +71,7 @@ impl ServiceContext {
             settings_reader.clone(),
         ));
 
-        #[cfg(feature = "service-bus")]
+        #[cfg(feature = "my-service-bus")]
         let sb_client = Arc::new(MyServiceBusClient::new(
             app_name.clone(),
             app_version.clone(),
@@ -88,7 +88,7 @@ impl ServiceContext {
             app_states,
             #[cfg(feature = "no-sql-reader")]
             my_no_sql_connection,
-            #[cfg(feature = "service-bus")]
+            #[cfg(feature = "my-service-bus")]
             sb_client,
             app_name,
             app_version,
@@ -128,7 +128,7 @@ impl ServiceContext {
         self.my_no_sql_connection
             .start(my_logger::LOGGER.clone())
             .await;
-        #[cfg(feature = "service-bus")]
+        #[cfg(feature = "my-service-bus")]
         self.sb_client.start().await;
 
         let mut http_server = self.http_server_builder.build();
@@ -155,7 +155,7 @@ impl ServiceContext {
     }
 
     //sb
-    #[cfg(feature = "service-bus")]
+    #[cfg(feature = "my-service-bus")]
     pub async fn register_sb_subscribe<
         TModel: GetMySbModelTopicId + MySbMessageDeserializer<Item = TModel> + Send + Sync + 'static,
     >(
@@ -170,7 +170,7 @@ impl ServiceContext {
         self
     }
 
-    #[cfg(feature = "service-bus")]
+    #[cfg(feature = "my-service-bus")]
     pub async fn get_sb_publisher<TModel: MySbMessageSerializer + GetMySbModelTopicId>(
         &self,
         do_retries: bool,

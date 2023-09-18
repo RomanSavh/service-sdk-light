@@ -17,14 +17,14 @@ macros = [
 ]
 
 full = [
-    "service-bus",
+    "my-service-bus",
     "no-sql-reader",
     "no-sql-writer",
     "grpc",
     "postgres",
     "macros",
 ]
-service-bus = ["dep:my-service-bus", "service-sdk-macros/service-bus"]
+my-service-bus = ["dep:my-service-bus", "service-sdk-macros/my-service-bus"]
 no-sql-reader = [
     "dep:my-no-sql-sdk",
     "my-no-sql-sdk/data-reader",
