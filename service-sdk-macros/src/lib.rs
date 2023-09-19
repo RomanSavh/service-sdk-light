@@ -66,6 +66,35 @@ pub fn use_grpc_server(_input: TokenStream) -> TokenStream {
 
 #[proc_macro]
 pub fn use_settings(_input: TokenStream) -> TokenStream {
+    let mut traits = vec![];
+
+    traits.push(quote::quote!(
+        use service_sdk::flurl;
+    ));
+
+    #[cfg(feature = "my-service-bus")]
+    traits.push(quote::quote!(
+        service_sdk::my_service_bus::client::MyServiceBusSettings
+    ));
+
+    #[cfg(feature = "postgres")]
+    traits.push(quote::quote!(service_sdk::my_postgres::PostgresSettings));
+
+    #[cfg(feature = "no-sql-writer")]
+    traits.push(quote::quote!(
+        service_sdk::my_no_sql_sdk::data_writer::MyNoSqlWriterSettings
+    ));
+
+    #[cfg(feature = "no-sql-reader")]
+    traits.push(quote::quote!(
+        service_sdk::my_no_sql_sdk::reader::MyNoSqlTcpConnectionSettings
+    ));
+
+    #[cfg(feature = "grpc")]
+    traits.push(quote::quote!(
+        service_sdk::my_grpc_extensions::GrpcClientSettings
+    ));
+
     quote::quote! {
         use service_sdk::flurl;
         use service_sdk::async_trait::async_trait;
