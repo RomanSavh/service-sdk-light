@@ -10,7 +10,7 @@ use tokio::task::JoinHandle;
 use tonic::{
     body::BoxBody,
     codegen::{http::Request, Service},
-    transport::{server::Router, Error, NamedService, Server},
+    transport::{server::Router, NamedService, Server},
 };
 
 const GRPC_PORT: u16 = 8888;

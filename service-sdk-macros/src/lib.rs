@@ -87,6 +87,17 @@ pub fn auto_generate_settings_traits(_input: TokenStream) -> TokenStream {
         }
     ));
 
+    #[cfg(feature = "my-service-bus")]
+    auto_generates.push(quote::quote!(
+        #[async_trait::async_trait]
+        impl MyServiceBusSettings for SettingsReader {
+            async fn get_host_port(&self) -> String {
+                let read_access = self.settings.read().await;
+                return read_access.service_bus_tcp.clone();
+            }
+        }
+    ));
+
     quote::quote! {
     #[async_trait]
     impl MyTelemetrySettings for SettingsReader {
