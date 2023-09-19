@@ -159,6 +159,7 @@ pub fn use_settings(_input: TokenStream) -> TokenStream {
         use service_sdk::rust_extensions;
         use service_sdk::my_logger::my_seq_logger::SeqSettings;
         use service_sdk::my_telemetry::my_telemetry_writer::MyTelemetrySettings;
+        use service_sdk::macros::AutoGenerateSettingsTraits;
         #(#uses)*
     }
     .into()
