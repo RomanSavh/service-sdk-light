@@ -78,7 +78,7 @@ pub fn auto_generate_settings_traits(_input: TokenStream) -> TokenStream {
 
     #[cfg(feature = "no-sql-reader")]
     auto_generates.push(quote::quote!(
-        #[async_trait::async_trait]
+        #[async_trait]
         impl service_sdk::my_no_sql_sdk::reader::MyNoSqlTcpConnectionSettings for SettingsReader {
             async fn get_host_port(&self) -> String {
                 let read_access = self.settings.read().await;
