@@ -83,13 +83,10 @@ pub fn auto_generate_settings_traits(_input: TokenStream) -> TokenStream {
             let read_access = self.settings.read().await;
             read_access.my_telemetry.clone()
         }
-
-        #(#auto_generates)*
-
     }
 
 
-
+    #(#auto_generates)*
     }
     .into()
 }
