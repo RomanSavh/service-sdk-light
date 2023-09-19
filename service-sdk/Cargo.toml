@@ -28,14 +28,12 @@ my-service-bus = ["dep:my-service-bus", "service-sdk-macros/my-service-bus"]
 no-sql-reader = [
     "dep:my-no-sql-sdk",
     "my-no-sql-sdk/data-reader",
-    "dep:serde",
     "service-sdk-macros/no-sql-reader",
 ]
 
 no-sql-writer = [
     "dep:my-no-sql-sdk",
     "my-no-sql-sdk/data-writer",
-    "dep:serde",
     "service-sdk-macros/no-sql-writer",
 ]
 
@@ -48,7 +46,7 @@ postgres = [
 
 
 [dependencies]
-serde = { version = "*", optional = true }
+serde = { version = "*" }
 tokio = { version = "*", features = ["full"] }
 tonic = { version = "*", features = [
     "tls",

@@ -16,6 +16,8 @@ pub extern crate my_settings_reader;
 pub extern crate rust_extensions;
 pub extern crate serde_yaml;
 
+pub extern crate serde;
+
 pub extern crate service_sdk_macros as macros;
 
 #[cfg(any(
