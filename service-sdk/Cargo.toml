@@ -46,6 +46,8 @@ postgres = [
     "service-sdk-macros/postgres",
 ]
 
+signal-r = ["my-http-server/signalr"]
+
 
 [dependencies]
 serde = { version = "*", optional = true }

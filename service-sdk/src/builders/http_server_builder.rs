@@ -18,12 +18,11 @@ use rust_extensions::StrOrString;
 
 pub struct HttpServerBuilder {
     listen_address: SocketAddr,
-
     auth_middleware: Option<Arc<dyn HttpServerMiddleware + Send + Sync + 'static>>,
-
     app_name: String,
     app_version: String,
     controllers: Option<ControllersMiddleware>,
+    custom_middlewares: Vec<Arc<dyn HttpServerMiddleware + Send + Sync + 'static>>,
 }
 impl HttpServerBuilder {
     pub fn new(app_name: StrOrString<'static>, app_version: StrOrString<'static>) -> Self {
@@ -34,6 +33,7 @@ impl HttpServerBuilder {
             controllers: None,
             app_name: app_name.to_string(),
             app_version: app_version.to_string(),
+            custom_middlewares: vec![],
         }
     }
 
@@ -57,6 +57,13 @@ impl HttpServerBuilder {
                 .unwrap()
                 .update_auth_error_factory(Arc::new(value));
         }
+    }
+
+    pub fn register_custom_middleware(
+        &mut self,
+        middleware: Arc<dyn HttpServerMiddleware + Send + Sync + 'static>,
+    ) {
+        self.custom_middlewares.push(middleware);
     }
 
     pub fn update_listen_endpoint(&mut self, ip: IpAddr, port: u16) {
@@ -132,6 +139,10 @@ impl HttpServerBuilder {
 
         let is_alive = IsAliveMiddleware::new(self.app_name.clone(), self.app_version.clone());
         my_http_server.add_middleware(Arc::new(is_alive));
+
+        for middleware in self.custom_middlewares.drain(..) {
+            my_http_server.add_middleware(middleware);
+        }
 
         if let Some(controllers) = self.controllers.take() {
             let controllers = Arc::new(controllers);
