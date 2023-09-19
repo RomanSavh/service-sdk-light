@@ -74,25 +74,25 @@ pub fn use_settings(_input: TokenStream) -> TokenStream {
 
     #[cfg(feature = "my-service-bus")]
     uses.push(quote::quote!(
-        service_sdk::my_service_bus::client::MyServiceBusSettings;
+        use service_sdk::my_service_bus::client::MyServiceBusSettings;
     ));
 
     #[cfg(feature = "postgres")]
-    uses.push(quote::quote!(service_sdk::my_postgres::PostgresSettings));
+    uses.push(quote::quote!(use service_sdk::my_postgres::PostgresSettings));
 
     #[cfg(feature = "no-sql-writer")]
     uses.push(quote::quote!(
-        service_sdk::my_no_sql_sdk::data_writer::MyNoSqlWriterSettings;
+        use service_sdk::my_no_sql_sdk::data_writer::MyNoSqlWriterSettings;
     ));
 
     #[cfg(feature = "no-sql-reader")]
     uses.push(quote::quote!(
-        service_sdk::my_no_sql_sdk::reader::MyNoSqlTcpConnectionSettings;
+        use service_sdk::my_no_sql_sdk::reader::MyNoSqlTcpConnectionSettings;
     ));
 
     #[cfg(feature = "grpc")]
     uses.push(quote::quote!(
-        service_sdk::my_grpc_extensions::GrpcClientSettings;
+        use service_sdk::my_grpc_extensions::GrpcClientSettings;
     ));
 
     quote::quote! {
