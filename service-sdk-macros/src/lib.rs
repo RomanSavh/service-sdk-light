@@ -66,37 +66,36 @@ pub fn use_grpc_server(_input: TokenStream) -> TokenStream {
 
 #[proc_macro]
 pub fn use_settings(_input: TokenStream) -> TokenStream {
-    let mut traits = vec![];
+    let mut uses = vec![];
 
-    traits.push(quote::quote!(
+    uses.push(quote::quote!(
         use service_sdk::flurl;
     ));
 
     #[cfg(feature = "my-service-bus")]
-    traits.push(quote::quote!(
+    uses.push(quote::quote!(
         service_sdk::my_service_bus::client::MyServiceBusSettings
     ));
 
     #[cfg(feature = "postgres")]
-    traits.push(quote::quote!(service_sdk::my_postgres::PostgresSettings));
+    uses.push(quote::quote!(service_sdk::my_postgres::PostgresSettings));
 
     #[cfg(feature = "no-sql-writer")]
-    traits.push(quote::quote!(
+    uses.push(quote::quote!(
         service_sdk::my_no_sql_sdk::data_writer::MyNoSqlWriterSettings
     ));
 
     #[cfg(feature = "no-sql-reader")]
-    traits.push(quote::quote!(
+    uses.push(quote::quote!(
         service_sdk::my_no_sql_sdk::reader::MyNoSqlTcpConnectionSettings
     ));
 
     #[cfg(feature = "grpc")]
-    traits.push(quote::quote!(
+    uses.push(quote::quote!(
         service_sdk::my_grpc_extensions::GrpcClientSettings
     ));
 
     quote::quote! {
-        use service_sdk::flurl;
         use service_sdk::async_trait::async_trait;
         use service_sdk::serde_yaml;
         use service_sdk::my_settings_reader;
@@ -104,6 +103,7 @@ pub fn use_settings(_input: TokenStream) -> TokenStream {
         use service_sdk::rust_extensions;
         use service_sdk::my_logger::my_seq_logger::SeqSettings;
         use service_sdk::my_telemetry::my_telemetry_writer::MyTelemetrySettings;
+        #(#uses)*
     }
     .into()
 }
@@ -157,6 +157,7 @@ pub fn use_my_sb_subscriber(_input: TokenStream) -> TokenStream {
         use service_sdk::my_logger::LogEventCtx;
         use service_sdk::my_telemetry::MyTelemetryContext;
         use service_sdk::my_service_bus::abstractions::subscriber::*;
+
     }
     .into()
 }
