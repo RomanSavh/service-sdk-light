@@ -40,6 +40,60 @@ pub fn generate_sdk_settings_traits(_input: TokenStream) -> TokenStream {
     .into()
 }
 
+#[proc_macro_derive(AutoGenerateSettingsTraits)]
+pub fn auto_generate_settings_traits(_input: TokenStream) -> TokenStream {
+    let mut auto_generates = Vec::new();
+
+    auto_generates.push(quote::quote! {
+        #[async_trait]
+        impl SeqSettings for SettingsReader {
+           async fn get_conn_string(&self) -> String {
+            let read_access = self.settings.read().await;
+            read_access.seq_conn_string.clone()
+        }
+    }
+    });
+
+    #[cfg(feature = "postgres")]
+    auto_generates.push(quote::quote! {
+        #[async_trait]
+        impl PostgresSettings for SettingsReader {
+            async fn get_connection_string(&self) -> String {
+                let read_access = self.settings.read().await;
+                read_access.postgres_conn_string.clone()
+            }
+        }
+    });
+
+    #[cfg(feature = "no-sql-writer")]
+    auto_generates.push(quote::quote! {
+            #[async_trait]
+    impl MyNoSqlWriterSettings for SettingsReader {
+        async fn get_url(&self) -> String {
+            let read_access = self.settings.read().await;
+            read_access.my_no_sql_writer.clone()
+        }
+    }
+        });
+
+    quote::quote! {
+    #[async_trait]
+    impl MyTelemetrySettings for SettingsReader {
+        async fn get_telemetry_url(&self) -> String {
+            let read_access = self.settings.read().await;
+            read_access.my_telemetry.clone()
+        }
+
+        #(#auto_generates)*
+
+    }
+
+
+
+    }
+    .into()
+}
+
 #[proc_macro]
 pub fn use_grpc_client(_input: TokenStream) -> TokenStream {
     quote::quote! {
