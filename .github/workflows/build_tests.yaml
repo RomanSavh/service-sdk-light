@@ -56,7 +56,7 @@ jobs:
           toolchain: stable
       - name: Install Protoc
         uses: arduino/setup-protoc@v1     
-      - run: cargo build --features service-bus
+      - run: cargo build --features my-service-bus
   build-grpc:
     runs-on: ubuntu-latest
     steps:
@@ -87,3 +87,13 @@ jobs:
       - name: Install Protoc
         uses: arduino/setup-protoc@v1     
       - run: cargo build --features macros
+  build-signal-r:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1     
+      - run: cargo build --features signal-r
