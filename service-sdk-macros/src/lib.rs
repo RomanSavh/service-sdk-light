@@ -78,7 +78,9 @@ pub fn use_settings(_input: TokenStream) -> TokenStream {
     ));
 
     #[cfg(feature = "postgres")]
-    uses.push(quote::quote!(use service_sdk::my_postgres::PostgresSettings));
+    uses.push(quote::quote!(
+        use service_sdk::my_postgres::PostgresSettings;
+    ));
 
     #[cfg(feature = "no-sql-writer")]
     uses.push(quote::quote!(
