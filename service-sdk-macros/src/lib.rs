@@ -93,7 +93,7 @@ pub fn auto_generate_settings_traits(_input: TokenStream) -> TokenStream {
         impl MyServiceBusSettings for SettingsReader {
             async fn get_host_port(&self) -> String {
                 let read_access = self.settings.read().await;
-                return read_access.service_bus_tcp.clone();
+                return read_access.my_sb_tcp_host_port.clone();
             }
         }
     ));
