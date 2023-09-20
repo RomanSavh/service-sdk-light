@@ -10,13 +10,13 @@ default = []
 
 my-nosql-sdk = ["dep:my-no-sql-sdk"]
 
-my-nosql-sdk-data-reader = [
+my-nosql-data-reader-sdk = [
     "dep:my-no-sql-sdk",
     "my-no-sql-sdk/data-reader",
     "service-sdk-macros/no-sql-reader",
 ]
 
-my-nosql-sdk-data-writer = [
+my-nosql-data-writer-sdk = [
     "dep:my-no-sql-sdk",
     "my-no-sql-sdk/data-writer",
     "service-sdk-macros/no-sql-writer",
@@ -32,8 +32,8 @@ macros = [
 full = [
     "my-service-bus",
     "my-nosql-sdk",
-    "my-nosql-sdk-data-reader",
-    "my-nosql-sdk-data-writer",
+    "my-nosql-data-reader-sdk",
+    "my-nosql-data-writer-sdk",
     "grpc",
     "postgres",
     "macros",

@@ -36,7 +36,7 @@ jobs:
           toolchain: stable
       - name: Install Protoc
         uses: arduino/setup-protoc@v1     
-      - run: cargo build --features my-nosql-sdk-data-reader
+      - run: cargo build --features my-nosql-data-reader-sdk
   build-ns-writer:
     runs-on: ubuntu-latest
     steps:
@@ -46,7 +46,7 @@ jobs:
           toolchain: stable
       - name: Install Protoc
         uses: arduino/setup-protoc@v1     
-      - run: cargo build --features my-nosql-sdk-data-writer
+      - run: cargo build --features my-nosql-data-writer-sdk
   build-ns-common:
     runs-on: ubuntu-latest
     steps:

@@ -3,18 +3,18 @@ use my_logger::my_seq_logger::{SeqLogger, SeqSettings};
 use my_telemetry::my_telemetry_writer::{MyTelemetrySettings, MyTelemetryWriter};
 use rust_extensions::{AppStates, MyTimer, MyTimerTick, StrOrString};
 
-#[cfg(feature = "my-nosql-sdk-data-writer")]
+#[cfg(feature = "my-nosql-data-writer-sdk")]
 use my_no_sql_sdk::data_writer::MyNoSqlWriterSettings;
 
-#[cfg(any(feature = "my-nosql-sdk-data-reader", feature = "my-nosql-sdk-data-writer"))]
+#[cfg(any(feature = "my-nosql-data-reader-sdk", feature = "my-nosql-data-writer-sdk"))]
 use my_no_sql_sdk::abstractions::MyNoSqlEntity;
 
-#[cfg(feature = "my-nosql-sdk-data-reader")]
+#[cfg(feature = "my-nosql-data-reader-sdk")]
 use my_no_sql_sdk::reader::{
     MyNoSqlDataReader, MyNoSqlTcpConnection, MyNoSqlTcpConnectionSettings,
 };
 
-#[cfg(feature = "my-nosql-sdk-data-reader")]
+#[cfg(feature = "my-nosql-data-reader-sdk")]
 use serde::de::DeserializeOwned;
 
 #[cfg(feature = "my-service-bus")]
@@ -43,7 +43,7 @@ pub struct ServiceContext {
     pub app_name: StrOrString<'static>,
     pub app_version: StrOrString<'static>,
     pub background_timers: Vec<MyTimer>,
-    #[cfg(feature = "my-nosql-sdk-data-reader")]
+    #[cfg(feature = "my-nosql-data-reader-sdk")]
     pub my_no_sql_connection: Arc<MyNoSqlTcpConnection>,
     #[cfg(feature = "my-service-bus")]
     pub sb_client: Arc<MyServiceBusClient>,
@@ -65,7 +65,7 @@ impl ServiceContext {
 
         SeqLogger::enable_from_connection_string(settings_reader.clone());
 
-        #[cfg(feature = "my-nosql-sdk-data-reader")]
+        #[cfg(feature = "my-nosql-data-reader-sdk")]
         let my_no_sql_connection = Arc::new(MyNoSqlTcpConnection::new(
             app_name.clone(),
             settings_reader.clone(),
@@ -86,7 +86,7 @@ impl ServiceContext {
             http_server: None,
             telemetry_writer: MyTelemetryWriter::new(app_name.clone(), settings_reader.clone()),
             app_states,
-            #[cfg(feature = "my-nosql-sdk-data-reader")]
+            #[cfg(feature = "my-nosql-data-reader-sdk")]
             my_no_sql_connection,
             #[cfg(feature = "my-service-bus")]
             sb_client,
@@ -124,7 +124,7 @@ impl ServiceContext {
         for timer in self.background_timers.iter() {
             timer.start(self.app_states.clone(), my_logger::LOGGER.clone());
         }
-        #[cfg(feature = "my-nosql-sdk-data-reader")]
+        #[cfg(feature = "my-nosql-data-reader-sdk")]
         self.my_no_sql_connection
             .start(my_logger::LOGGER.clone())
             .await;
@@ -145,7 +145,7 @@ impl ServiceContext {
     }
 
     //ns
-    #[cfg(feature = "my-nosql-sdk-data-reader")]
+    #[cfg(feature = "my-nosql-data-reader-sdk")]
     pub async fn get_ns_reader<
         TMyNoSqlEntity: MyNoSqlEntity + Sync + Send + DeserializeOwned + 'static,
     >(
