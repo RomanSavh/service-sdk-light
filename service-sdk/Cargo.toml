@@ -48,7 +48,7 @@ postgres = [
     "service-sdk-macros/postgres",
 ]
 
-signal-r = ["my-http-server/signalr"]
+signal-r = ["my-http-server/signal-r"]
 
 
 [dependencies]
