@@ -9,8 +9,7 @@ edition = "2021"
 default = []
 
 macros = [
-    "dep:my-no-sql-sdk",
-    "my-no-sql-sdk/macros",
+    "my-no-sql-sdk?/macros",
     "my-service-bus?/macros",
     "my-grpc-extensions?/grpc-server",
     "my-grpc-extensions?/grpc-client",
