@@ -243,6 +243,7 @@ pub fn use_my_sb_subscriber(_input: TokenStream) -> TokenStream {
 pub fn use_signal_r_contracts(_input: TokenStream) -> TokenStream {
     quote::quote! {
         use service_sdk::my_http_server::signal_r::macros::signal_r_json_contract;
+        use service_sdk::my_http_server;
         use service_sdk::rust_extensions;
         use service_sdk::my_logger;
         use service_sdk::my_logger::LogEventCtx;
