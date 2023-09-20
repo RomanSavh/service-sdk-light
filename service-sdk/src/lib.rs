@@ -21,9 +21,9 @@ pub extern crate serde;
 pub extern crate service_sdk_macros as macros;
 
 #[cfg(any(
-    feature = "no-sql-reader",
-    feature = "no-sql-writer",
-    feature = "macros",
+    feature = "my-nosql-sdk-data-reader",
+    feature = "my-nosql-sdk-data-writer",
+    feature = "my-nosql-sdk",
 ))]
 pub extern crate my_no_sql_sdk;
 

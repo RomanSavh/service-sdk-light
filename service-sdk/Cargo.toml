@@ -8,8 +8,22 @@ edition = "2021"
 [features]
 default = []
 
+my-nosql-sdk = ["dep:my-no-sql-sdk"]
+
+my-nosql-sdk-data-reader = [
+    "dep:my-no-sql-sdk",
+    "my-no-sql-sdk/data-reader",
+    "service-sdk-macros/no-sql-reader",
+]
+
+my-nosql-sdk-data-writer = [
+    "dep:my-no-sql-sdk",
+    "my-no-sql-sdk/data-writer",
+    "service-sdk-macros/no-sql-writer",
+]
+
 macros = [
-    "my-no-sql-sdk/macros",
+    "my-no-sql-sdk?/macros",
     "my-service-bus?/macros",
     "my-grpc-extensions?/grpc-server",
     "my-grpc-extensions?/grpc-client",
@@ -17,24 +31,15 @@ macros = [
 
 full = [
     "my-service-bus",
-    "no-sql-reader",
-    "no-sql-writer",
+    "my-nosql-sdk",
+    "my-nosql-sdk-data-reader",
+    "my-nosql-sdk-data-writer",
     "grpc",
     "postgres",
     "macros",
 ]
 my-service-bus = ["dep:my-service-bus", "service-sdk-macros/my-service-bus"]
-no-sql-reader = [
-    "dep:my-no-sql-sdk",
-    "my-no-sql-sdk/data-reader",
-    "service-sdk-macros/no-sql-reader",
-]
 
-no-sql-writer = [
-    "dep:my-no-sql-sdk",
-    "my-no-sql-sdk/data-writer",
-    "service-sdk-macros/no-sql-writer",
-]
 
 grpc = ["dep:tonic", "dep:hyper", "dep:futures-core", "dep:my-grpc-extensions"]
 postgres = [
