@@ -252,3 +252,18 @@ pub fn use_signal_r_json_contract(_input: TokenStream) -> TokenStream {
     }
     .into()
 }
+
+#[proc_macro]
+pub fn use_signal_subscriber(_input: TokenStream) -> TokenStream {
+    quote::quote! {
+        use service_sdk::async_trait::async_trait;
+        use service_sdk::my_http_server::signal_r::{MySignalRConnection, SignalRTelemetry, MySignalRActionSubscriber};
+        use service_sdk::my_http_server;
+        use service_sdk::rust_extensions;
+        use service_sdk::my_logger;
+        use service_sdk::my_logger::LogEventCtx;
+        use service_sdk::my_telemetry::MyTelemetryContext;
+
+    }
+    .into()
+}
