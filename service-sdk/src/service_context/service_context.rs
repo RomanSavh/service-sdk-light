@@ -6,7 +6,10 @@ use rust_extensions::{AppStates, MyTimer, MyTimerTick, StrOrString};
 #[cfg(feature = "my-nosql-data-writer-sdk")]
 use my_no_sql_sdk::data_writer::MyNoSqlWriterSettings;
 
-#[cfg(any(feature = "my-nosql-data-reader-sdk", feature = "my-nosql-data-writer-sdk"))]
+#[cfg(any(
+    feature = "my-nosql-data-reader-sdk",
+    feature = "my-nosql-data-writer-sdk"
+))]
 use my_no_sql_sdk::abstractions::MyNoSqlEntity;
 
 #[cfg(feature = "my-nosql-data-reader-sdk")]
@@ -100,14 +103,9 @@ impl ServiceContext {
         }
     }
 
-    pub fn register_background_job(
-        &mut self,
-        duration: Duration,
-        name: &str,
-        job: Arc<dyn MyTimerTick + Send + Sync + 'static>,
-    ) {
+    pub fn register_timer(&mut self, duration: Duration, builder: impl Fn(&mut MyTimer)) {
         let mut timer = MyTimer::new(duration);
-        timer.register_timer(name, job);
+        builder(&mut timer);
 
         self.background_timers.push(timer);
     }
