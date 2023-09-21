@@ -41,7 +41,13 @@ full = [
 my-service-bus = ["dep:my-service-bus", "service-sdk-macros/my-service-bus"]
 
 
-grpc = ["dep:tonic", "dep:hyper", "dep:futures-core", "dep:my-grpc-extensions", "service-sdk-macros/grpc"]
+grpc = [
+    "dep:tonic",
+    "dep:hyper",
+    "dep:futures-core",
+    "dep:my-grpc-extensions",
+    "service-sdk-macros/grpc",
+]
 postgres = [
     "dep:my-postgres",
     "dep:tokio-postgres",
