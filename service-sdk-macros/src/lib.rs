@@ -191,7 +191,8 @@ pub fn use_my_http_server(_input: TokenStream) -> TokenStream {
     quote::quote! {
         use service_sdk::async_trait;
         use service_sdk::my_http_server;
-        use my_http_server::macros::http_route;
+        use my_http_server::macros::*;
+        use my_http_server::*;
     }
     .into()
 }
