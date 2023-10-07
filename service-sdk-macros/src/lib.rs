@@ -133,6 +133,7 @@ pub fn use_grpc_server(_input: TokenStream) -> TokenStream {
         use service_sdk::async_trait::async_trait;
         use service_sdk::my_grpc_extensions::server::with_telemetry;
         use service_sdk::my_grpc_extensions::server::generate_server_stream;
+        use service_sdk::my_grpc_extensions::server::with_result_as_stream;
         use service_sdk::rust_extensions;
         use service_sdk::my_logger;
     }
