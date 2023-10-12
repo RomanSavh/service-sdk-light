@@ -1,7 +1,7 @@
 use my_http_server::MyHttpServer;
 use my_logger::my_seq_logger::{SeqLogger, SeqSettings};
 use my_telemetry::my_telemetry_writer::{MyTelemetrySettings, MyTelemetryWriter};
-use rust_extensions::{AppStates, MyTimer, MyTimerTick, StrOrString};
+use rust_extensions::{AppStates, MyTimer, StrOrString};
 
 #[cfg(feature = "my-nosql-data-writer-sdk")]
 use my_no_sql_sdk::data_writer::MyNoSqlWriterSettings;
@@ -163,6 +163,27 @@ impl ServiceContext {
     ) -> &Self {
         self.sb_client
             .subscribe(self.app_name.clone(), queue_type, callback)
+            .await;
+
+        self
+    }
+
+    #[cfg(feature = "my-service-bus")]
+    pub async fn register_sb_subscriber_with_suffix<
+        TModel: GetMySbModelTopicId + MySbMessageDeserializer<Item = TModel> + Send + Sync + 'static,
+    >(
+        &self,
+        callback: Arc<dyn SubscriberCallback<TModel> + Send + Sync + 'static>,
+        queue_type: TopicQueueType,
+        suffix: impl Into<StrOrString<'static>>,
+    ) -> &Self {
+        let suffix: StrOrString<'static> = suffix.into();
+        self.sb_client
+            .subscribe(
+                format!("{}{}", self.app_name.as_str(), suffix.as_str()),
+                queue_type,
+                callback,
+            )
             .await;
 
         self
