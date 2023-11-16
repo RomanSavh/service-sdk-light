@@ -65,7 +65,7 @@ tonic = { version = "*", features = [
     "tls-roots",
     "prost",
 ], optional = true }
-hyper = { version = "*", optional = true }
+hyper = { version = "0.14.27", optional = true }
 async-trait = "*"
 
 service-sdk-macros = { path = "../service-sdk-macros" }
