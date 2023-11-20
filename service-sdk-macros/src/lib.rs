@@ -233,6 +233,7 @@ pub fn use_my_sb_entity_protobuf_model(_input: TokenStream) -> TokenStream {
     quote::quote! {
         use service_sdk::my_service_bus;
         use service_sdk::my_service_bus::macros::my_sb_entity_protobuf_model;
+        use service_sdk::my_service_bus::macros::my_sb_entity_protobuf_model_with_version;
         use service_sdk::rust_extensions;
     }
     .into()
