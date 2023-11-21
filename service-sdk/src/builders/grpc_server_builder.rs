@@ -3,8 +3,6 @@ use std::{
     net::{IpAddr, SocketAddr},
 };
 
-use hyper::Body;
-
 use my_logger::LogEventCtx;
 use tokio::task::JoinHandle;
 use tonic::{
@@ -33,7 +31,7 @@ impl GrpcServerBuilder {
 
     pub fn add_grpc_service<S>(&mut self, svc: S)
     where
-        S: Service<Request<Body>, Response = hyper::Response<BoxBody>, Error = Infallible>
+        S: Service<Request<Body>, Response = tonic::Response<BoxBody>, Error = Infallible>
             + NamedService
             + Clone
             + Send
