@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-default = ["grpc"]
+default = []
 
 my-nosql-sdk = ["dep:my-no-sql-sdk"]
 
@@ -43,7 +43,6 @@ my-service-bus = ["dep:my-service-bus", "service-sdk-macros/my-service-bus"]
 
 grpc = [
     "dep:tonic",
-    "dep:hyper",
     "dep:futures-core",
     "dep:my-grpc-extensions",
     "service-sdk-macros/grpc",
@@ -65,7 +64,7 @@ tonic = { version = "*", features = [
     "tls-roots",
     "prost",
 ], optional = true }
-hyper = { version = "0.14.27", optional = true }
+
 async-trait = "*"
 
 service-sdk-macros = { path = "../service-sdk-macros" }

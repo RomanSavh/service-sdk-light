@@ -3,13 +3,14 @@ use std::{
     net::{IpAddr, SocketAddr},
 };
 
-use my_logger::LogEventCtx;
-use tokio::task::JoinHandle;
-use tonic::{
+use my_grpc_extensions::tonic::{
     body::BoxBody,
     codegen::{http::Request, Service},
     transport::{server::Router, NamedService, Server},
 };
+
+use my_logger::LogEventCtx;
+use tokio::task::JoinHandle;
 
 const GRPC_PORT: u16 = 8888;
 pub struct GrpcServerBuilder {
@@ -31,8 +32,11 @@ impl GrpcServerBuilder {
 
     pub fn add_grpc_service<S>(&mut self, svc: S)
     where
-        S: Service<Request<Body>, Response = tonic::Response<BoxBody>, Error = Infallible>
-            + NamedService
+        S: Service<
+                Request<my_grpc_extensions::hyper::Body>,
+                Response = my_grpc_extensions::hyper::Response<BoxBody>,
+                Error = Infallible,
+            > + NamedService
             + Clone
             + Send
             + 'static,
