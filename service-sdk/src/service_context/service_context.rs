@@ -148,8 +148,9 @@ impl ServiceContext {
         TMyNoSqlEntity: MyNoSqlEntity + Sync + Send + DeserializeOwned + 'static,
     >(
         &self,
-    ) -> Arc<dyn MyNoSqlDataReader<TMyNoSqlEntity> + Sync + Send + 'static> {
-        return self.my_no_sql_connection.get_reader().await;
+    ) -> Arc<impl MyNoSqlDataReader<TMyNoSqlEntity> + Sync + Send + 'static> {
+        let reader = self.my_no_sql_connection.get_reader().await;
+        return reader;
     }
 
     //sb
