@@ -13,9 +13,7 @@ use my_no_sql_sdk::data_writer::MyNoSqlWriterSettings;
 use my_no_sql_sdk::abstractions::MyNoSqlEntity;
 
 #[cfg(feature = "my-nosql-data-reader-sdk")]
-use my_no_sql_sdk::reader::{
-    MyNoSqlDataReader, MyNoSqlTcpConnection, MyNoSqlTcpConnectionSettings,
-};
+use my_no_sql_sdk::reader::{MyNoSqlTcpConnection, MyNoSqlTcpConnectionSettings};
 
 #[cfg(feature = "my-nosql-data-reader-sdk")]
 use serde::de::DeserializeOwned;
@@ -148,7 +146,7 @@ impl ServiceContext {
         TMyNoSqlEntity: MyNoSqlEntity + Sync + Send + DeserializeOwned + 'static,
     >(
         &self,
-    ) -> Arc<impl MyNoSqlDataReader<TMyNoSqlEntity> + Sync + Send + 'static> {
+    ) -> Arc<my_no_sql_sdk::reader::MyNoSqlDataReaderTcp<TMyNoSqlEntity>> {
         let reader = self.my_no_sql_connection.get_reader().await;
         return reader;
     }
