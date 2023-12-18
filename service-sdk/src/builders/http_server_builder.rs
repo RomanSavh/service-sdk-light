@@ -80,7 +80,7 @@ impl HttpServerBuilder {
 
     pub fn register_get_action(
         &mut self,
-        action: impl GetAction + HandleHttpRequest + GetDescription + Send + Sync + 'static,
+        action: impl GetAction + Clone + HandleHttpRequest + GetDescription + Send + Sync + 'static,
     ) -> &mut Self {
         if self.controllers.is_none() {
             self.controllers = Some(ControllersMiddleware::new(None, None));
@@ -94,7 +94,7 @@ impl HttpServerBuilder {
 
     pub fn register_post_action(
         &mut self,
-        action: impl PostAction + HandleHttpRequest + GetDescription + Send + Sync + 'static,
+        action: impl PostAction + Clone + HandleHttpRequest + GetDescription + Clone + Send + Sync + 'static,
     ) -> &mut Self {
         if self.controllers.is_none() {
             self.controllers = Some(ControllersMiddleware::new(None, None));
@@ -108,7 +108,7 @@ impl HttpServerBuilder {
 
     pub fn register_put_action(
         &mut self,
-        action: impl PutAction + HandleHttpRequest + GetDescription + Send + Sync + 'static,
+        action: impl PutAction + Clone + HandleHttpRequest + GetDescription + Send + Sync + 'static,
     ) -> &mut Self {
         if self.controllers.is_none() {
             self.controllers = Some(ControllersMiddleware::new(None, None));
