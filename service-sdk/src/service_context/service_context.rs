@@ -142,9 +142,7 @@ impl ServiceContext {
 
     //ns
     #[cfg(feature = "my-nosql-data-reader-sdk")]
-    pub async fn get_ns_reader<
-        TMyNoSqlEntity: MyNoSqlEntity + Sync + Send + DeserializeOwned + 'static,
-    >(
+    pub async fn get_ns_reader<TMyNoSqlEntity: MyNoSqlEntity + Sync + Send + 'static>(
         &self,
     ) -> Arc<my_no_sql_sdk::reader::MyNoSqlDataReaderTcp<TMyNoSqlEntity>> {
         let reader = self.my_no_sql_connection.get_reader().await;
