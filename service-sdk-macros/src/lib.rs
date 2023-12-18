@@ -223,7 +223,7 @@ pub fn use_my_postgres(_input: TokenStream) -> TokenStream {
 pub fn use_my_no_sql_entity(_input: TokenStream) -> TokenStream {
     quote::quote! {
         use service_sdk::my_no_sql_sdk;
-        use service_sdk::my_no_sql_sdk::macros::my_no_sql_entity;
+        use service_sdk::my_no_sql_sdk::macros::*;
         use service_sdk::rust_extensions;
     }
     .into()
