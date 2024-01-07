@@ -121,9 +121,7 @@ impl ServiceContext {
             timer.start(self.app_states.clone(), my_logger::LOGGER.clone());
         }
         #[cfg(feature = "my-nosql-data-reader-sdk")]
-        self.my_no_sql_connection
-            .start(my_logger::LOGGER.clone())
-            .await;
+        self.my_no_sql_connection.start().await;
         #[cfg(feature = "my-service-bus")]
         self.sb_client.start().await;
 
