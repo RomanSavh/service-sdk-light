@@ -21,9 +21,9 @@ use serde::de::DeserializeOwned;
 #[cfg(feature = "my-service-bus")]
 use my_service_bus::{
     abstractions::{
-        publisher::{MySbMessageSerializer, MyServiceBusPublisher},
+        publisher::MyServiceBusPublisher,
         subscriber::{MySbMessageDeserializer, SubscriberCallback, TopicQueueType},
-        GetMySbModelTopicId,
+        GetMySbModelTopicId, MySbMessageSerializer,
     },
     client::{MyServiceBusClient, MyServiceBusSettings},
 };
