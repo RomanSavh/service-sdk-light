@@ -10,7 +10,7 @@ use my_no_sql_sdk::data_writer::MyNoSqlWriterSettings;
     feature = "my-nosql-data-reader-sdk",
     feature = "my-nosql-data-writer-sdk"
 ))]
-use my_no_sql_sdk::abstractions::MyNoSqlEntity;
+use my_no_sql_sdk::abstractions::{MyNoSqlEntity, MyNoSqlEntitySerializer};
 
 #[cfg(feature = "my-nosql-data-reader-sdk")]
 use my_no_sql_sdk::reader::{MyNoSqlTcpConnection, MyNoSqlTcpConnectionSettings};
@@ -140,9 +140,13 @@ impl ServiceContext {
 
     //ns
     #[cfg(feature = "my-nosql-data-reader-sdk")]
-    pub async fn get_ns_reader<TMyNoSqlEntity: MyNoSqlEntity + Sync + Send + 'static>(
+    pub async fn get_ns_reader<
+        TMyNoSqlEntity: MyNoSqlEntity + MyNoSqlEntitySerializer + Sync + Send + 'static,
+    >(
         &self,
     ) -> Arc<my_no_sql_sdk::reader::MyNoSqlDataReaderTcp<TMyNoSqlEntity>> {
+        use my_no_sql_sdk::abstractions::MyNoSqlEntitySerializer;
+
         let reader = self.my_no_sql_connection.get_reader().await;
         return reader;
     }
