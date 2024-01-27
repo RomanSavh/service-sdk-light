@@ -211,10 +211,12 @@ pub fn use_my_postgres(_input: TokenStream) -> TokenStream {
         use service_sdk::my_postgres::macros::*;
         use service_sdk::my_postgres::MyPostgres;
         use service_sdk::my_postgres::MyPostgresError;
+        use service_sdk::my_postgres::sql_select::BulkSelectBuilder;
         use service_sdk::my_telemetry::MyTelemetryContext;
         use service_sdk::my_logger;
         use service_sdk::rust_extensions;
         use service_sdk::rust_extensions::date_time::DateTimeAsMicroseconds;
+
     }
     .into()
 }
