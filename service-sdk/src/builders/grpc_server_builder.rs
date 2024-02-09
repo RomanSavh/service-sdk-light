@@ -6,7 +6,8 @@ use std::{
 use my_grpc_extensions::tonic::{
     body::BoxBody,
     codegen::{http::Request, Service},
-    transport::{server::Router, NamedService, Server},
+    server::NamedService,
+    transport::{server::Router, Server},
 };
 
 use my_logger::LogEventCtx;
