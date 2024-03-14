@@ -1,7 +1,9 @@
 mod builders;
 mod common;
 mod service_context;
+mod sdk_metrics;
 
+pub use sdk_metrics::*;
 pub use builders::*;
 pub use common::*;
 pub use service_context::*;
@@ -15,6 +17,7 @@ pub extern crate my_logger;
 pub extern crate my_settings_reader;
 pub extern crate rust_extensions;
 pub extern crate serde_yaml;
+
 
 pub extern crate serde;
 
@@ -38,3 +41,5 @@ pub extern crate my_postgres;
 
 #[cfg(feature = "my-service-bus")]
 pub extern crate my_service_bus;
+
+pub extern crate metrics;

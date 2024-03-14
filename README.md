@@ -65,12 +65,12 @@ impl ServiceInfo for SettingsReader {
 ```
 
 # Features overview
-| Feature                     | Description                                                                                                    | Settings implementation                                                                                                                                                                                |
-| --------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Feature                     | Description                                                                                                    | Settings implementation                                                                                                                                                                                                                           |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [default](#default)         | /api/isalive endpoint,  telemetry, and seq logger enabled by default. Also, you can define custom http routes. | [my_telemetry_writer::MyTelemetrySettings](https://github.com/MyJetTools/my-telemetry-writer), [my_seq_logger::SeqSettings](https://github.com/MyJetTools/my-seq-logger) and [service_sdk::ServiceInfo](#recommended-serviceinfo-implementation). |
-| [service-bus](#service-bus) | Allows to make SB subscribe and get SB publishers                                                              | [my_service_bus_tcp_client::MyServiceBusSettings](https://github.com/MyJetTools/my-service-bus-tcp-client)                                                                                             |
-| [no-sql](#nosql)            | Allows to get NS subscribers                                                                                   | [my_no_sql_tcp_reader::MyNoSqlTcpConnectionSettings](https://github.com/MyJetTools/my-no-sql-tcp-reader)                                                                                               |
-| [grpc-server](#grpc-server) | Allows to bind grpc server implementation                                                                      | -                                                                                                                                                                                                      |
+| [service-bus](#service-bus) | Allows to make SB subscribe and get SB publishers                                                              | [my_service_bus_tcp_client::MyServiceBusSettings](https://github.com/MyJetTools/my-service-bus-tcp-client)                                                                                                                                        |
+| [no-sql](#nosql)            | Allows to get NS subscribers                                                                                   | [my_no_sql_tcp_reader::MyNoSqlTcpConnectionSettings](https://github.com/MyJetTools/my-no-sql-tcp-reader)                                                                                                                                          |
+| [grpc-server](#grpc-server) | Allows to bind grpc server implementation                                                                      | -                                                                                                                                                                                                                                                 |
 
 # Recommended ServiceInfo implementation
 
@@ -84,6 +84,42 @@ impl ServiceInfo for SettingsReader {
         env!("CARGO_PKG_VERSION").to_string()
     }
 }
+```
+
+# Metrics
+We supports metrics for grpc and http. They enabled by default. You can get it by /metrics url
+
+| Type | Feature                                | Description                          | Labels                    |
+| ---- | -------------------------------------- | ------------------------------------ | ------------------------- |
+| HTTP | http_failed_request_count              | Count of failed HTTP requests        | method, path, status_code |
+| HTTP | http_failed_request_milis_duration_sum | Duration sum of failed HTTP request  | method, path, status_code |
+| HTTP | http_failed_request_duration_sec       | Histogram of failed request duration | method, path, status_code |
+| HTTP | http_request_duration_sec              | Histogram of request duration        | method, path              |
+| HTTP | http_request_milis_duration_sum        | Duration sum of HTTP request         | method, path              |
+| HTTP | http_request_count                     | Count of HTTP requests               | method, path              |
+| GRPC | grpc_request_duration_sec              | Grpc request duration histogram      | method, path              |
+| GRPC | grpc_request_duration_milis_sum        | Count of HTTP requests               | method, path              |
+| GRPC | http_request_count                     | Count of HTTP requests               | method, path              |
+                                                                                                                    
+### Custom metrics
+Also if you need - you can create you own metrics:
+
+```rust, no_run
+let common_labels = &[
+        ("method", method),
+        ("path", path),
+        ("status_code", response.status().to_string()),
+    ];
+
+//counter
+service_sdk::metrics::counter!("my_metric_counter", common_labels)
+    .increment(1);
+//gauge
+service_sdk::metrics::gauge!("my_metric_gauge", common_labels)
+    .increment(1);
+//histogram
+service_sdk::metrics::histogram!("my_metric_histogram", common_labels)
+    .record(duration.as_secs_f64());
 ```
 
 # Default

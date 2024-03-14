@@ -56,6 +56,7 @@ pub struct ServiceContext {
 
 impl ServiceContext {
     pub async fn new(settings_reader: service_sdk_macros::generate_settings_signature!()) -> Self {
+        metrics_prometheus::install();
         let app_states = Arc::new(AppStates::create_un_initialized());
         let app_name = settings_reader.get_service_name();
         let app_version = settings_reader.get_service_version();

@@ -16,6 +16,8 @@ use my_http_server::controllers::{
 use my_http_server::{HttpServerMiddleware, MyHttpServer};
 use rust_extensions::StrOrString;
 
+use crate::MetricsMiddleware;
+
 pub struct HttpServerBuilder {
     listen_address: SocketAddr,
     auth_middleware: Option<Arc<dyn HttpServerMiddleware + Send + Sync + 'static>>,
@@ -139,6 +141,7 @@ impl HttpServerBuilder {
 
         let is_alive = IsAliveMiddleware::new(self.app_name.clone(), self.app_version.clone());
         my_http_server.add_middleware(Arc::new(is_alive));
+        my_http_server.add_middleware(Arc::new(MetricsMiddleware{}));
 
         for middleware in self.custom_middlewares.drain(..) {
             my_http_server.add_middleware(middleware);
