@@ -13,9 +13,18 @@ use my_grpc_extensions::tonic::{
 use my_logger::LogEventCtx;
 use tokio::task::JoinHandle;
 
+use crate::GrpcMetricsMiddlewareLayer;
+
 const GRPC_PORT: u16 = 8888;
 pub struct GrpcServerBuilder {
-    server: Option<Router>,
+    server: Option<
+        Router<
+            tower::layer::util::Stack<
+                tower::layer::util::Stack<GrpcMetricsMiddlewareLayer, tower::layer::util::Identity>,
+                tower::layer::util::Identity,
+            >,
+        >,
+    >,
     listen_address: Option<SocketAddr>,
 }
 
@@ -43,13 +52,13 @@ impl GrpcServerBuilder {
             + 'static,
         S::Future: Send + 'static,
     {
-        if self.server.is_none() {
-            self.server = Some(Server::builder().add_service(svc));
-            return;
-        }
+        let layer = tower::ServiceBuilder::new()
+            .layer(GrpcMetricsMiddlewareLayer::default())
+            .into_inner();
 
-        let server = self.server.take().unwrap();
-        self.server = Some(server.add_service(svc));
+        let server = Server::builder().layer(layer).add_service(svc);
+
+        self.server = Some(server);
     }
 
     pub fn build(&mut self) -> GrpcServer {
@@ -58,20 +67,35 @@ impl GrpcServerBuilder {
         } else {
             SocketAddr::new(crate::consts::get_default_ip_address(), GRPC_PORT)
         };
-        let mut result = GrpcServer::new(self.server.take().unwrap());
 
-        result.start(grpc_addr);
-        result
+        let mut grpc_server = GrpcServer::new(self.server.take().unwrap());
+        grpc_server.start(grpc_addr);
+
+        grpc_server
     }
 }
 
 pub struct GrpcServer {
-    server: Option<Router>,
+    server: Option<
+        Router<
+            tower::layer::util::Stack<
+                tower::layer::util::Stack<GrpcMetricsMiddlewareLayer, tower::layer::util::Identity>,
+                tower::layer::util::Identity,
+            >,
+        >,
+    >,
     join_handle: Option<JoinHandle<()>>,
 }
 
 impl GrpcServer {
-    pub fn new(server: Router) -> Self {
+    pub fn new(
+        server: Router<
+            tower::layer::util::Stack<
+                tower::layer::util::Stack<GrpcMetricsMiddlewareLayer, tower::layer::util::Identity>,
+                tower::layer::util::Identity,
+            >,
+        >,
+    ) -> Self {
         Self {
             server: Some(server),
             join_handle: None,
