@@ -55,7 +55,7 @@ where
             ];
 
             metrics::histogram!("grpc_request_duration_sec", common_labels)
-                .record(duration.as_secs_f64() as f64);
+                .record(duration.as_secs_f64());
             metrics::counter!("grpc_request_duration_milis_sum", common_labels)
                 .increment(duration.as_millis() as u64);
             metrics::counter!("grpc_request_count", common_labels).increment(1);
