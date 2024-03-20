@@ -98,8 +98,8 @@ We supports metrics for grpc and http. They enabled by default. You can get it b
 | HTTP | http_request_milis_duration_sum        | Duration sum of HTTP request         | method, path              |
 | HTTP | http_request_count                     | Count of HTTP requests               | method, path              |
 | GRPC | grpc_request_duration_sec              | Grpc request duration histogram      | method, path              |
-| GRPC | grpc_request_duration_milis_sum        | Count of HTTP requests               | method, path              |
-| GRPC | http_request_count                     | Count of HTTP requests               | method, path              |
+| GRPC | grpc_request_duration_milis_sum        | Sum of request grpc request durations requests               | method, path              |
+| GRPC | grpc_request_count                     | Count of GRPC requests               | method, path              |
                                                                                                                     
 ### Custom metrics
 Also if you need - you can create you own metrics:
