@@ -125,6 +125,7 @@ pub fn use_grpc_client(_input: TokenStream) -> TokenStream {
         use service_sdk::my_grpc_extensions::client::generate_grpc_client;
         use service_sdk::my_telemetry;
         use service_sdk::async_trait;
+        use service_sdk::my_logger;
     }
     .into()
 }
