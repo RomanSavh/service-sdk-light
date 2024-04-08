@@ -42,6 +42,9 @@ my-service-bus = ["dep:my-service-bus", "service-sdk-macros/my-service-bus"]
 
 
 grpc = ["dep:futures-core", "dep:my-grpc-extensions", "service-sdk-macros/grpc"]
+
+grpc-with-tls = ["my-grpc-extensions?/with-tls"]
+
 postgres = [
     "dep:my-postgres",
     "dep:tokio-postgres",
@@ -54,10 +57,7 @@ signal-r = ["my-http-server/signal-r"]
 [dependencies]
 serde = { version = "*" }
 tokio = { version = "*", features = ["full"] }
-
-
 async-trait = "*"
-
 service-sdk-macros = { path = "../service-sdk-macros" }
 
 rust-extensions = { tag = "0.1.4", git = "https://github.com/MyJetTools/rust-extensions.git", features = [
