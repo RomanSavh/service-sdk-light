@@ -288,3 +288,24 @@ pub fn use_signal_r_subscriber(_input: TokenStream) -> TokenStream {
     }
     .into()
 }
+
+#[proc_macro]
+pub fn generate_grpc_service(input: TokenStream) -> TokenStream {
+    let input: proc_macro2::TokenStream = input.into();
+
+    quote::quote! {
+
+        #[derive(Clone)]
+        pub struct SdkGrpcService {
+            pub app: std::sync::Arc<#input>,
+        }
+
+        impl SdkGrpcService {
+            pub fn new(app: std::sync::Arc<#input>) -> Self {
+                Self { app }
+            }
+        }
+
+    }
+    .into()
+}

@@ -18,3 +18,5 @@ proc-macro = true
 
 [dependencies]
 quote = "*"
+
+proc-macro2 = "*"
