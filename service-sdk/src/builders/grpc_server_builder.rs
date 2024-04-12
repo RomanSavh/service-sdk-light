@@ -15,7 +15,7 @@ use tokio::task::JoinHandle;
 
 use crate::GrpcMetricsMiddlewareLayer;
 
-const GRPC_PORT: u16 = 8888;
+const DEFAULT_GRPC_PORT: u16 = 8888;
 pub struct GrpcServerBuilder {
     server: Option<
         Router<
@@ -65,7 +65,15 @@ impl GrpcServerBuilder {
         let grpc_addr = if let Some(taken) = self.listen_address {
             taken
         } else {
-            SocketAddr::new(crate::consts::get_default_ip_address(), GRPC_PORT)
+            let grpc_port = if let Ok(port) = std::env::var("GRPC_PORT") {
+                match port.as_str().parse::<u16>() {
+                    Ok(parsed) => parsed,
+                    Err(_) => DEFAULT_GRPC_PORT,
+                }
+            } else {
+                DEFAULT_GRPC_PORT
+            };
+            SocketAddr::new(crate::consts::get_default_ip_address(), grpc_port)
         };
 
         let mut grpc_server = GrpcServer::new(self.server.take().unwrap());
