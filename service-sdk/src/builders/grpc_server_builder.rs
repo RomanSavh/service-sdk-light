@@ -65,44 +65,33 @@ impl GrpcServerBuilder {
         self.server = Some(server);
     }
 
-    pub fn add_grpc_services<S>(&mut self, svc: Vec<S>)
-    where
-        S: Service<
-                Request<my_grpc_extensions::hyper::Body>,
-                Response = my_grpc_extensions::hyper::Response<BoxBody>,
-                Error = Infallible,
-            > + NamedService
-            + Clone
-            + Send
-            + 'static,
-        S::Future: Send + 'static,
+    pub fn add_grpc_services(
+        &mut self,
+        add_function: impl Fn(
+            &mut Server<
+                tower::layer::util::Stack<
+                    tower::layer::util::Stack<
+                        GrpcMetricsMiddlewareLayer,
+                        tower::layer::util::Identity,
+                    >,
+                    tower::layer::util::Identity,
+                >,
+            >,
+        ) -> Router<
+            tower::layer::util::Stack<
+                tower::layer::util::Stack<GrpcMetricsMiddlewareLayer, tower::layer::util::Identity>,
+                tower::layer::util::Identity,
+            >,
+        >,
+    )
     {
-        if self.server.is_some() {
-            panic!("Only one service can be added to the server");
-        }
-
-        if svc.len() < 2 {
-            panic!("At least two services must be provided")
-        }
-
         let layer = tower::ServiceBuilder::new()
             .layer(GrpcMetricsMiddlewareLayer::default())
             .into_inner();
 
         let mut server = Server::builder().layer(layer);
 
-        let router = {
-
-            let mut services = svc;
-
-            let mut router = server.add_service(services.remove(0));
-
-            for s in services.into_iter() {
-                router = router.add_service(s);
-            }
-
-            router
-        };
+        let router = add_function(&mut server);
 
         self.server = Some(router);
     }
