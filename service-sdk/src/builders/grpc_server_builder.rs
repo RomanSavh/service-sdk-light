@@ -52,6 +52,11 @@ impl GrpcServerBuilder {
             + 'static,
         S::Future: Send + 'static,
     {
+
+        if self.server.is_some(){
+            panic!("Only one service can be added to the server");
+        }
+
         let layer = tower::ServiceBuilder::new()
             .layer(GrpcMetricsMiddlewareLayer::default())
             .into_inner();

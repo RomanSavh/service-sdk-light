@@ -49,9 +49,9 @@ pub struct ServiceContext {
     #[cfg(feature = "my-service-bus")]
     pub sb_client: Arc<MyServiceBusClient>,
     #[cfg(feature = "grpc")]
-    pub grpc_server_builder: Option<GrpcServerBuilder>,
+    pub grpc_server_builder: Option<Vec<GrpcServerBuilder>>,
     #[cfg(feature = "grpc")]
-    pub grpc_server: Option<GrpcServer>,
+    pub grpc_servers: Option<Vec<GrpcServer>>,
 }
 
 impl ServiceContext {
@@ -98,7 +98,7 @@ impl ServiceContext {
             grpc_server_builder: None,
             background_timers: vec![],
             #[cfg(feature = "grpc")]
-            grpc_server: None,
+            grpc_servers: None,
         }
     }
 
@@ -131,8 +131,13 @@ impl ServiceContext {
         self.http_server = Some(http_server);
 
         #[cfg(feature = "grpc")]
-        if let Some(mut grpc_server_builder) = self.grpc_server_builder.take() {
-            self.grpc_server = Some(grpc_server_builder.build());
+        if let Some(grpc_server_builders) = self.grpc_server_builder.take() {
+            self.grpc_servers = Some(
+                grpc_server_builders
+                    .into_iter()
+                    .map(|mut x| x.build())
+                    .collect(),
+            );
         }
 
         println!("Application is stated");
@@ -201,6 +206,14 @@ impl ServiceContext {
     pub fn configure_grpc_server(&mut self, config: impl Fn(&mut GrpcServerBuilder)) {
         let mut grpc_server_builder = GrpcServerBuilder::new();
         config(&mut grpc_server_builder);
-        self.grpc_server_builder = Some(grpc_server_builder);
+
+        if self.grpc_server_builder.is_none() {
+            self.grpc_server_builder = Some(vec![grpc_server_builder]);
+        } else {
+            self.grpc_server_builder
+                .as_mut()
+                .unwrap()
+                .push(grpc_server_builder);
+        }
     }
 }
