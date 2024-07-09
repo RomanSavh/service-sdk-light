@@ -43,7 +43,7 @@ impl GrpcServerBuilder {
     pub fn add_grpc_service<S>(&mut self, svc: S)
     where
         S: Service<
-                Request<my_grpc_extensions::hyper::Body>,
+                Request<BoxBody>,
                 Response = my_grpc_extensions::hyper::Response<BoxBody>,
                 Error = Infallible,
             > + NamedService
@@ -83,8 +83,7 @@ impl GrpcServerBuilder {
                 tower::layer::util::Identity,
             >,
         >,
-    )
-    {
+    ) {
         let layer = tower::ServiceBuilder::new()
             .layer(GrpcMetricsMiddlewareLayer::default())
             .into_inner();

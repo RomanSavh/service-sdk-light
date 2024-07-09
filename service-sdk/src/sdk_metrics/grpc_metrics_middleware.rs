@@ -2,7 +2,6 @@ use std::pin::Pin;
 use std::task::{Context, Poll};
 
 use my_grpc_extensions::hyper;
-use my_grpc_extensions::hyper::Body;
 use my_grpc_extensions::tonic::body::BoxBody;
 use tower::{Layer, Service};
 
@@ -24,9 +23,12 @@ pub struct GrpcMetricsMiddleware<S> {
 
 type BoxFuture<'a, T> = Pin<Box<dyn std::future::Future<Output = T> + Send + 'a>>;
 
-impl<S> Service<hyper::Request<Body>> for GrpcMetricsMiddleware<S>
+impl<S> Service<hyper::Request<BoxBody>> for GrpcMetricsMiddleware<S>
 where
-    S: Service<hyper::Request<Body>, Response = hyper::Response<BoxBody>> + Clone + Send + 'static,
+    S: Service<hyper::Request<BoxBody>, Response = hyper::Response<BoxBody>>
+        + Clone
+        + Send
+        + 'static,
     S::Future: Send + 'static,
 {
     type Response = S::Response;
@@ -37,7 +39,7 @@ where
         self.inner.poll_ready(cx)
     }
 
-    fn call(&mut self, req: hyper::Request<Body>) -> Self::Future {
+    fn call(&mut self, req: hyper::Request<BoxBody>) -> Self::Future {
         let clone = self.inner.clone();
         let mut inner = std::mem::replace(&mut self.inner, clone);
         let method = req.method().to_string();
