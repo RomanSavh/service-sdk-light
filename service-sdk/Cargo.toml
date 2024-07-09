@@ -65,7 +65,7 @@ rust-extensions = { tag = "0.1.4", git = "https://github.com/MyJetTools/rust-ext
     "base64",
 ] }
 
-is-alive-middleware = { tag = "0.7.0", git = "https://github.com/MyJetTools/is-alive-middleware.git" }
+is-alive-middleware = { tag = "0.7.1", git = "https://github.com/MyJetTools/is-alive-middleware.git" }
 my-telemetry = { tag = "1.1.1", git = "https://github.com/MyJetTools/my-telemetry.git", features = [
     "my-telemetry-writer",
 ] }
