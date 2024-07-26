@@ -102,7 +102,7 @@ my-settings-reader = { tag = "0.3.1", git = "https://github.com/MyJetTools/my-se
     "background-reader",
 ] }
 
-flurl = { tag = "0.5.2", git = "https://github.com/MyJetTools/fl-url.git" }
+flurl = { tag = "0.5.3", git = "https://github.com/MyJetTools/fl-url.git" }
 serde_yaml = { version = "*" }
 
 rustls = { version = "*", optional = true }
