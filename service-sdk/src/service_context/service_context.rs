@@ -133,7 +133,13 @@ impl ServiceContext {
         self.sb_client.start().await;
 
         let mut http_server = self.http_server_builder.build();
-        http_server.start(self.app_states.clone(), my_logger::LOGGER.clone());
+
+        if std::env::var("HTTP2").is_ok() {
+            http_server.start_h2(self.app_states.clone(), my_logger::LOGGER.clone());
+        } else {
+            http_server.start(self.app_states.clone(), my_logger::LOGGER.clone());
+        }
+
         self.http_server = Some(http_server);
 
         #[cfg(feature = "grpc")]
