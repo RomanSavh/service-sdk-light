@@ -149,6 +149,8 @@ impl ServiceContext {
 
         println!("Application is stated");
         self.app_states.wait_until_shutdown().await;
+
+        my_logger::LOGGER.wait_until_everything_is_written().await;
     }
 
     //ns
