@@ -1,6 +1,5 @@
 use my_http_server::MyHttpServer;
 use my_logger::my_seq_logger::{SeqLogger, SeqSettings};
-use my_telemetry::my_telemetry_writer::{MyTelemetrySettings, MyTelemetryWriter};
 use rust_extensions::{AppStates, MyTimer, StrOrString};
 
 #[cfg(feature = "my-nosql-data-writer-sdk")]
@@ -38,8 +37,6 @@ use crate::{GrpcServer, GrpcServerBuilder};
 pub struct ServiceContext {
     pub http_server_builder: HttpServerBuilder,
     pub http_server: Option<MyHttpServer>,
-
-    pub telemetry_writer: MyTelemetryWriter,
     pub app_states: Arc<AppStates>,
     pub app_name: StrOrString<'static>,
     pub app_version: StrOrString<'static>,
@@ -92,7 +89,6 @@ impl ServiceContext {
         Self {
             http_server_builder: HttpServerBuilder::new(app_name.clone(), app_version.clone()),
             http_server: None,
-            telemetry_writer: MyTelemetryWriter::new(app_name.clone(), settings_reader.clone()),
             app_states,
             #[cfg(feature = "my-nosql-data-reader-sdk")]
             my_no_sql_connection,
@@ -122,8 +118,6 @@ impl ServiceContext {
 
     pub async fn start_application(&mut self) {
         self.app_states.set_initialized();
-        self.telemetry_writer
-            .start(self.app_states.clone(), my_logger::LOGGER.clone());
         for timer in self.background_timers.iter() {
             timer.start(self.app_states.clone(), my_logger::LOGGER.clone());
         }

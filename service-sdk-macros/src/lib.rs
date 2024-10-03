@@ -17,7 +17,7 @@ pub fn generate_settings_signature(_item: TokenStream) -> TokenStream {
     traits.push(quote::quote!(+ MyNoSqlWriterSettings));
 
     let result = quote::quote! {
-       Arc<impl MyTelemetrySettings + ServiceInfo #(#traits)* + Send + Sync + 'static>
+       Arc<impl ServiceInfo #(#traits)* + Send + Sync + 'static>
     };
 
     result.into()
@@ -104,15 +104,6 @@ pub fn auto_generate_settings_traits(_input: TokenStream) -> TokenStream {
     ));
 
     quote::quote! {
-    #[async_trait]
-    impl MyTelemetrySettings for SettingsReader {
-        async fn get_telemetry_url(&self) -> String {
-            let read_access = self.settings.read().await;
-            read_access.my_telemetry.clone()
-        }
-    }
-
-
     #(#auto_generates)*
     }
     .into()
@@ -123,7 +114,7 @@ pub fn use_grpc_client(_input: TokenStream) -> TokenStream {
     quote::quote! {
         use service_sdk::my_grpc_extensions;
         use service_sdk::my_grpc_extensions::client::generate_grpc_client;
-        use service_sdk::my_telemetry;
+        
         use service_sdk::async_trait;
         use service_sdk::my_logger;
     }
@@ -134,7 +125,7 @@ pub fn use_grpc_client(_input: TokenStream) -> TokenStream {
 pub fn use_grpc_server(_input: TokenStream) -> TokenStream {
     quote::quote! {
         use service_sdk::my_grpc_extensions;
-        use service_sdk::my_telemetry;
+        
         use service_sdk::futures_core;
         use service_sdk::async_trait::async_trait;
         use service_sdk::my_grpc_extensions::server::with_telemetry;
@@ -187,7 +178,6 @@ pub fn use_settings(_input: TokenStream) -> TokenStream {
         use service_sdk::macros::SdkSettingsTraits;
         use service_sdk::rust_extensions;
         use service_sdk::my_logger::my_seq_logger::SeqSettings;
-        use service_sdk::my_telemetry::my_telemetry_writer::MyTelemetrySettings;
         use service_sdk::macros::AutoGenerateSettingsTraits;
         #(#uses)*
     }
@@ -215,7 +205,7 @@ pub fn use_my_postgres(_input: TokenStream) -> TokenStream {
         use service_sdk::my_postgres::MyPostgresError;
         use service_sdk::my_postgres::sql_select::BulkSelectBuilder;
         use service_sdk::my_postgres::UpdateConflictType;
-        use service_sdk::my_telemetry::MyTelemetryContext;
+        
         use service_sdk::my_postgres::tokio_postgres::types::IsNull;
         use service_sdk::my_logger;
         use service_sdk::rust_extensions;
@@ -253,7 +243,7 @@ pub fn use_my_sb_subscriber(_input: TokenStream) -> TokenStream {
         use service_sdk::rust_extensions;
         use service_sdk::my_logger;
         use service_sdk::my_logger::LogEventCtx;
-        use service_sdk::my_telemetry::MyTelemetryContext;
+        
         use service_sdk::my_service_bus::abstractions::subscriber::*;
         use service_sdk::async_trait::async_trait;
 
@@ -268,7 +258,7 @@ pub fn use_signal_r_json_contract(_input: TokenStream) -> TokenStream {
         use service_sdk::rust_extensions;
         use service_sdk::my_logger;
         use service_sdk::my_logger::LogEventCtx;
-        use service_sdk::my_telemetry::MyTelemetryContext;
+        
 
     }
     .into()
@@ -283,7 +273,7 @@ pub fn use_signal_r_subscriber(_input: TokenStream) -> TokenStream {
         use service_sdk::rust_extensions;
         use service_sdk::my_logger;
         use service_sdk::my_logger::LogEventCtx;
-        use service_sdk::my_telemetry::MyTelemetryContext;
+        
 
     }
     .into()
